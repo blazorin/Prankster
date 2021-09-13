@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MauiPranksterApp.WinUI": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
+    }
+  }
+}

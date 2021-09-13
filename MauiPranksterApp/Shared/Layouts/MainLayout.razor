@@ -1,0 +1,216 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+@implements IDisposable
+
+  <div class="wrapper dz-mode @SupportDarkMode()">
+        <!-- menu -->
+        <div class="menu">
+            <button class="toggle-btn" disabled style="visibility: hidden" />
+            <div class="dz-btn-grp">
+                
+              <SettingsPop @bind-IsOpen="_settingsOpen" @bind-IsOpen:event="OnSettingsInteracted" />
+               
+            </div>
+        </div>
+        <div class="m-menu__overlay"></div>
+        <!-- main menu -->
+        <div class="m-menu">
+            <div class="m-menu__header">
+                <button class="m-menu__close">
+                    <i class="dz-icon-close"></i>
+                </button>
+                <div class="dz-user">
+                    <img src="assets/images/angela-mayer.png" alt="">
+                    <div class="dz-text">
+                        <a href="#!">Alberto Romero</a>
+                        <h3>
+                            <i class="dz-icon-checkmark-circle"></i>
+                            Developer
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <ul>
+			</ul>
+        </div>
+        <!-- end main menu -->
+    </div>
+
+      <!-- top-right nav -->
+   <div class="dz-pop dz-pop2 dz-mode @SupportDarkMode()">
+        <div class="@((_settingsOpen ? "dz-show " : "") + "dz-nav dz-nav2")">
+            <div style="position: relative;left: 82px;">    
+                <div class="pointer" />
+                </div>
+           <div style="position: relative;top: -25px;">
+                <ul class="dz-top">
+                    <li>
+     
+                        <div style="height: 28px; margin-right: 15px">
+                            <i class="dz-icon-moon darkSwitch-icon"></i>
+                        </div> 
+                        <div class="dz-text">
+                            <label class="darkSwitch-toggle" for="enableMode">
+                                <input type="checkbox" id="enableMode">
+                                <span class="darkSwitch-slider"></span>
+                            </label>
+                        </div>
+
+                    </li>
+                    <li>
+                    <a href="#">
+                        <div class="dz-icon">
+                            <i class="dz-icon-search-o"></i>
+                        </div>
+                        <div class="dz-text">
+                            <h3>search</h3>
+                        </div>
+                    </a>
+                    
+                    </li>
+                    <li>
+                    <a href="#">
+                        <div class="dz-icon">
+                            <i class="dz-icon-user-o"></i>
+                        </div>
+                        <div class="dz-text">
+                            <h3>profile</h3>
+                        </div>
+                    </a>
+                    
+                    </li>
+                    <li>
+                    <a href="#">
+                        <div class="dz-icon">
+                            <i class="dz-icon-heart-o"></i>
+                        </div>
+                        <div class="dz-text">
+                            <h3>followers <span>· 519</span></h3>
+                        </div>
+                    </a>
+                    
+                    </li>
+                </ul>
+           </div>
+            <ul class="dz-mid">
+                <li>
+                    <a href="#">
+                        <div class="dz-icon">
+                            <i class="dz-icon-edit-2-o"></i>
+                        </div>
+                        <div class="dz-text">
+                            <h3>posts <span>· 1285</span></h3>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <div class="dz-icon">
+                            <i class="dz-icon-menu-o"></i>
+                        </div>
+                        <div class="dz-text">
+                            <h3>additional...</h3>
+                        </div>
+                        <div class="dz-more">
+                            <i class="dz-icon-arrow-forward"></i>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+            <ul class="dz-bottom">
+                <li class="dz-del">
+                    <a href="#">
+                        <div class="dz-icon">
+                            <i class="dz-icon-trash-o"></i>
+                        </div>
+                        <div class="dz-text">
+                            <h3>deleted item</h3>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+     <!-- top-right nav -->
+
+        @if (_isOnIndexPage)
+        {
+            <div class="dz-home dz-home3 dz-home4 dz-home2 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false">
+            @Body
+            </div>
+        } else {
+            @Body
+        }
+
+    <!-- start footer -->
+    <div class="dz-footer">
+        
+        <div class="dz-tab-bar dz-tab-icon dz-flex-style dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false">
+                <button class="dz-bar-btn dz-bar-btn-secondary">
+                        <i class="dz-icon-star" style="color: #FAA501"></i>        
+                </button>
+                <button class="dz-bar-btn dz-bar-btn-secondary">
+                        <i class="dz-icon-search-o"></i>
+                </button>
+                <button class="dz-bar-btn dz-bar-cam-bg">
+                        <i class="dz-icon-phone" style="color: var(--white)"></i>
+                </button>
+                <button class="dz-bar-btn dz-bar-btn-secondary" style="bottom: 5px; position: relative"> 
+                    <div style="position: relative; right: -8px; bottom: -2px">
+                        <span style="color: white">1</span>
+                    </div>
+                    <i class="dz-icon-recording"></i>
+                </button>
+               <button class="dz-bar-btn dz-bar-btn-secondary">
+                        <i class="dz-icon-user-o"></i>
+               </button>
+        </div>
+            
+    </div>
+    <!-- end footer -->
+
+
+@code {
+    bool _settingsOpen;
+    bool _isOnIndexPage = true;
+    bool _darkEnabledInit;
+    EventHandler<LocationChangedEventArgs> _checkIsOnIndexPage;
+
+    protected override void OnInitialized() {
+        _checkIsOnIndexPage = (obj, args) =>
+            {
+                string loc = args.Location;
+
+                _isOnIndexPage = args.Location.EndsWith("home");
+                StateHasChanged();
+            };
+
+        NavigationManager.LocationChanged += _checkIsOnIndexPage;
+
+    }
+
+    protected override async Task OnInitializedAsync() =>
+       _darkEnabledInit = await JsRuntime.InvokeAsync<bool>("darkMode.get");
+
+    
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) 
+    {
+        if (!firstRender)
+            return;
+
+        await JsRuntime.InvokeVoidAsync("darkMode.initializeFromBlazor"); // now done on Blazor
+    }
+            
+
+    string SupportDarkMode() => _darkEnabledInit ? "dz-dark-mode" : string.Empty;
+
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= _checkIsOnIndexPage;
+ 
+    }
+
+}

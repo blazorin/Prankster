@@ -1,0 +1,169 @@
+﻿@page "/home"
+@inject IJSRuntime JsRuntime
+@implements IAsyncDisposable
+
+    <!-- Home -->
+
+        <div class="dz-appbar" style='background-image: url("assets/images/home/banner.jpg"); background-size: cover; background-repeat: no-repeat; background-position: center center'>
+            <div class="dz-overlay">
+                <div class="dz-btn-grp dz-flex-style" style="padding-left: 203px; visibility: hidden">
+                    <div class="dz-heading">
+                        <h2 id="hiddenTextField">Mobile Component</h2>
+                        <p>Make your best mobile design</p>
+                    </div>
+                </div>
+                <a href="#!" class="dz-logo"><p style="height: 70px;"></p></a>
+                <form action="#">
+                    <input type="text" placeholder="Search Pranks" class="dz-search">
+                    <div class="dz-icon">
+                        <i class="dz-icon-search"></i>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="dz-home-content">
+            <div class="dz-card dz-flex-style">
+                <div class="dz-text">
+                    <p>🎉 Prankster Ya Está Aquí</p>
+                    <h3>Ha llegado <span>la nueva era</span> de las bromas telefónicas. No pares de reír con los descuentos de lanzamiento</h3>
+                    @*Add different messages when user haves free calls*@
+                </div>
+                <div class="dz-big-icon">
+                    <i class="dz-icon-phone"></i>
+                </div>
+            </div>
+            <div class="dz-trend">
+                <div class="dz-title dz-flex-style">
+                    <h2>Trending 🔥</h2>
+                    <a href="#!">
+                        view more
+                        <i class="dz-icon-arrow-round-forward"></i>                          
+                    </a>
+                </div>
+                <!-- slider 1 -->
+                <div class="dz-slider-part dz-near swiper-container">
+                    <div class="swiper-wrapper">
+                        <div class="dz-item swiper-slide">
+                            <div class="dz-img items">
+                                <div class="skeleton__content skeleton__loading" style="min-height: 200px;"> @* TODO: Custom swiper skeleton height *@
+                                    <div class="skeleton__headline skeleton__placeholder">
+	                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dz-item swiper-slide">
+                            <div class="dz-img items">
+                                <div class="skeleton__content skeleton__loading" style="min-height: 200px;">
+                                    <div class="skeleton__headline skeleton__placeholder">
+	                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dz-title dz-flex-style dz-browse">
+                <h2>New Pranks</h2>
+                <button>
+                    view all
+                    <i class="dz-icon-arrow-forward"></i>                        
+                </button>
+            </div>
+            <!-- list -->
+            <ul class="dz-list">
+                <li>
+                    <div class="dz-img">
+                        <img src="assets/images/home/item8.jpg" alt="">
+                        <div class="dz-overlay">
+                            <p>156 👍</p>
+                        </div>
+                    </div>
+                    <div class="dz-text">
+                        <a href="#!">Most Common Rule In Most Of The Eateries In NY</a>
+                        <div class="dz-bottom-text dz-indigo">
+                            <div class="dz-icon-sm">
+                                <i class="dz-icon-restaurant"></i>
+                            </div>
+                            <p>Bistros & Dinners <span>· 15 mins</span></p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="dz-img">
+                        <img src="assets/images/home/item6.jpg" alt="">
+                        <div class="dz-overlay">
+                            <p>156 👍</p>
+                        </div>
+                    </div>
+                    <div class="dz-text">
+                        <a href="#!">I Voted Yesterday And Today I Don’t Give A Ship...</a>
+                        <div class="dz-bottom-text dz-pink">
+                            <div class="dz-icon-sm">
+                                <i class="dz-icon-car"></i>
+                            </div>
+                            <p>transportation <span>· 6 mins</span></p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="dz-img">
+                        <img src="assets/images/home/item7.jpg" alt="">
+                        <div class="dz-overlay">
+                            <p>156 👍</p>
+                        </div>
+                    </div>
+                    <div class="dz-text">
+                        <a href="#!">Powerful Movement From a Crowd of People You Could Never Expect Anything</a>
+                        <div class="dz-bottom-text dz-teal">
+                            <div class="dz-icon-sm">
+                                <i class="dz-icon-bowtie"></i>
+                            </div>
+                            <p>People & Society <span>· 8 mins</span></p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="dz-img">
+                        <img src="assets/images/home/item8.jpg" alt="">
+                        <div class="dz-overlay">
+                            <p>156 👍</p>
+                        </div>
+                    </div>
+                    <div class="dz-text">
+                        <a href="#!">The Incredible Motorcycle Journey over USA in 1954</a>
+                        <div class="dz-bottom-text dz-orange">
+                            <div class="dz-icon-sm">
+                                <i class="dz-icon-airplane"></i>
+                            </div>
+                            <p>Travel Stories <span>· 15 mins</span></p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            
+        </div>
+
+@code {
+
+    bool _hasLoaded;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+
+        if (!firstRender)
+        return;
+
+        // load PranksterApp Javascript Core
+        await JsRuntime.InvokeVoidAsync("loadScript", "./assets/js/script.js");
+
+        _hasLoaded = true;
+        StateHasChanged();
+
+        // TODO: Check if user is on Ipad for bigger loading skeleton at swiper (mainly apply 2x Height)
+    }
+
+    public async ValueTask DisposeAsync() =>
+        await JsRuntime.InvokeVoidAsync("reloadJsDefer", "./assets/js/script.js", false);
+
+        
+    
+}

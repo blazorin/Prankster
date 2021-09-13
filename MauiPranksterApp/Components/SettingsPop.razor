@@ -1,0 +1,12 @@
+﻿<button class="dz-bell" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0)" @onclick="async () => {IsOpen = !IsOpen; await OnSettingsInteracted.InvokeAsync(IsOpen);}">
+		<i class="dz-icon-settings" style='@((IsOpen ? "transform: rotate(50deg);" : "") + " font-size: 30px")' />
+</button>
+
+
+@code {
+	[Parameter]
+	public bool IsOpen { get; set; }
+
+	[Parameter]
+	public EventCallback<bool> OnSettingsInteracted { get; set; }
+}
