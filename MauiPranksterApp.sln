@@ -1,11 +1,8 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MauiPranksterApp", "MauiPranksterApp\MauiPranksterApp.csproj", "{AE1366E3-783A-4EE0-895F-219F3DB77D59}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MauiPranksterApp.WinUI", "MauiPranksterApp.WinUI\MauiPranksterApp.WinUI.csproj", "{B2B085EA-3703-4023-8565-C057456D37D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,6 @@
-﻿namespace MauiPranksterApp
+﻿using UIKit;
+
+namespace MauiPranksterApp
 {
     public class Program
     {

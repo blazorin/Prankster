@@ -16,54 +16,31 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiImage
-			Include="..\MauiPranksterApp\Resources\appicon.svg"
-			Link="Resources\appicon.svg"
-			ForegroundFile="..\MauiPranksterApp\Resources\appiconfg.svg"
-			IsAppIcon="true"
-			Color="#512BD4" />
+		<MauiImage Include="..\MauiPranksterApp\Resources\appicon.svg" Link="Resources\appicon.svg" ForegroundFile="..\MauiPranksterApp\Resources\appiconfg.svg" IsAppIcon="true" Color="#512BD4" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen
-			Include="..\MauiPranksterApp\Resources\appiconfg.svg"
-			Link="Resources\appiconfg.svg"
-			Color="#512BD4" />
+		<MauiSplashScreen Include="..\MauiPranksterApp\Resources\appiconfg.svg" Link="Resources\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Images -->
-		<MauiImage
-			Include="..\MauiPranksterApp\Resources\Images\*"
-			Link="Resources\Images\%(Filename)%(Extension)" />
+		<MauiImage Include="..\MauiPranksterApp\Resources\Images\*" Link="Resources\Images\%(Filename)%(Extension)" />
 
 		<!-- Custom Fonts -->
-		<MauiFont
-			Include="..\MauiPranksterApp\Resources\Fonts\*"
-			Link="Resources\Fonts\%(Filename)%(Extension)" />
+		<MauiFont Include="..\MauiPranksterApp\Resources\Fonts\*" Link="Resources\Fonts\%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile
-			Include="..\MauiPranksterApp\**\*.cs"
-			Exclude="..\MauiPranksterApp\bin\**;..\MauiPranksterApp\obj\**;..\MauiPranksterApp\Platforms\**"
-			Link="%(RecursiveDir)%(Filename)%(Extension)"/>
-		<MauiXaml
-			Include="..\MauiPranksterApp\**\*.xaml"
-			Exclude="..\MauiPranksterApp\bin\**;..\MauiPranksterApp\obj\**"
-			Link="%(RecursiveDir)%(FileName)%(Extension)" />
-		<Content
-			Include="..\MauiPranksterApp\wwwroot\**"
-			Link="wwwroot\%(RecursiveDir)%(Filename)%(Extension)" />
-		<RazorComponent
-			Include="..\MauiPranksterApp\**\*.razor"
-			Exclude="..\MauiPranksterApp\bin\**;..\MauiPranksterApp\obj\**"
-			Link="%(RecursiveDir)%(Filename)%(Extension)"/>
+		<Compile Include="..\MauiPranksterApp\**\*.cs" Exclude="..\MauiPranksterApp\bin\**;..\MauiPranksterApp\obj\**;..\MauiPranksterApp\Platforms\**" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+		<MauiXaml Include="..\MauiPranksterApp\**\*.xaml" Exclude="..\MauiPranksterApp\bin\**;..\MauiPranksterApp\obj\**" Link="%(RecursiveDir)%(FileName)%(Extension)" />
+		<Content Include="..\MauiPranksterApp\wwwroot\**" Link="wwwroot\%(RecursiveDir)%(Filename)%(Extension)" />
+		<RazorComponent Include="..\MauiPranksterApp\**\*.razor" Exclude="..\MauiPranksterApp\bin\**;..\MauiPranksterApp\obj\**" Link="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.0-preview.7.21378.6" />
-		<PackageReference Include="Microsoft.ProjectReunion" Version="0.8.1" />
-		<PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.1" />
-		<PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.1" />
-		<PackageReference Include="Microsoft.ProjectReunion.InteractiveExperiences" Version="0.8.1" NoWarn="NU1701" />
+		<PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.0-rc.1.21452.15" />
+		<PackageReference Include="Microsoft.ProjectReunion" Version="0.8.3" />
+		<PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.3" />
+		<PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.3" />
+		<PackageReference Include="Microsoft.ProjectReunion.InteractiveExperiences" Version="0.8.3" NoWarn="NU1701" />
 	</ItemGroup>
 
 </Project>

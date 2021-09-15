@@ -10,22 +10,21 @@ using Microsoft.Maui.Hosting;
 
 namespace MauiPranksterApp
 {
-    public class Startup : IStartup
+    public static class MauiProgram
     {
-        public void Configure(IAppHostBuilder appBuilder)
+        public static MauiApp CreateMauiApp()
         {
-            appBuilder
+            var builder = MauiApp.CreateBuilder();
+            builder
                 .RegisterBlazorMauiWebView()
-                .UseMicrosoftExtensionsServiceProviderFactory()
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 })
-                .ConfigureServices(services =>
-                {
-                    services.AddBlazorWebView();
-                });
+                .Services.AddBlazorWebView();
+
+            return builder.Build();
         }
     }
 }
