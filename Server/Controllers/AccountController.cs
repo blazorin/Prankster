@@ -1,0 +1,218 @@
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Model.Data;
+using Model.Services;
+using Shared;
+using Shared.ApiErrors;
+using Shared.Dto;
+using Google.Apis.Auth;
+using Model.Enums;
+using Shared.Enums;
+using Server.Secure;
+
+namespace Server.Controllers
+{
+    [ApiController]
+    [Route("account")]
+    public class AccountController : ControllerBase
+    {
+        private readonly IUserServices _userServices;
+        private IConfiguration _configuration { get; }
+
+        public AccountController(IUserServices userServices, IConfiguration configuration)
+        {
+            _userServices = userServices;
+            _configuration = configuration;
+        }
+
+        [HttpPost("auth")]
+        public async Task<IActionResult> Login(UserLoginDto credentials)
+        {
+            /*
+             * Previous checks
+             */
+
+            #region Login Checks
+
+            if (User?.Identity != null && User.Identity.IsAuthenticated)
+                return Forbid();
+
+            //TODO: Recaptcha
+
+            if (string.IsNullOrWhiteSpace(credentials.Identifier))
+                return Unauthorized(new UnauthorizedError("no_identifier_provided"));
+            if (await _userServices.IsBannedAsync(credentials.Identifier))
+                return Unauthorized(new UnauthorizedError("user_violated_tos"));
+
+            if (string.IsNullOrWhiteSpace(credentials.IPAddress))
+                return Unauthorized(new UnauthorizedError("no_ip_address_provided"));
+
+            if (credentials.LastPlatform is Platform.Missing)
+                return Unauthorized(new UnauthorizedError("no_platform_provided"));
+
+
+            if (credentials.Identifier.Length > 50)
+                return Unauthorized(new UnauthorizedError("identifier_invalid"));
+
+            if (!IPAddress.TryParse(credentials.IPAddress, out var _))
+                return Unauthorized(new UnauthorizedError("ip_address_invalid"));
+
+            // TODO: ipstack.com api implementation -> fetch country and city from IPAddress
+
+            if (!string.IsNullOrEmpty(credentials.DeviceModel) && credentials.DeviceModel.Length >= 50)
+                return Unauthorized(new UnauthorizedError("device_model_error"));
+
+            if (!string.IsNullOrEmpty(credentials.Email))
+                return Unauthorized(new UnauthorizedError("not_oauth_login_method"));
+
+            if (!await _userServices.IdentifierExistsAsync(credentials.Identifier))
+                return await Register(credentials);
+
+
+            var user = await _userServices.GetUserByAuthenticationAsync(credentials, UserLogType.Login);
+            if (user == null)
+                return Unauthorized(new UnauthorizedError("email_or_password_incorrect"));
+
+            #endregion
+
+            /*
+             * If all ok, Continues here
+             */
+
+            var userData = HandleGenerateToken(user);
+            return Ok(userData);
+        }
+
+
+        public async Task<IActionResult> Register(UserLoginDto newUser)
+        {
+            /*
+             * Previous checks already done!
+             */
+
+            var user = await _userServices.AddUserAsync(newUser, UserLogType.SignUp);
+
+            var userData = HandleGenerateToken(user);
+            return Ok(userData);
+        }
+
+        /* Oauth Web API Calls */
+
+        [HttpPost("oauth/google")]
+        public async Task<IActionResult> GoogleOauth(GoogleLoginRequest request)
+        {
+            if (User?.Identity != null && User.Identity.IsAuthenticated)
+                return Forbid();
+
+            if (!await _userServices.IdentifierExistsAsync(request.Identifier))
+                return Unauthorized(new UnauthorizedError("google_needs_a_signup"));
+
+            GoogleJsonWebSignature.Payload payload;
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken,
+                    new GoogleJsonWebSignature.ValidationSettings
+                    {
+                        Audience = new[] { _configuration["Authentication:Google:ClientId"] }
+                    });
+            }
+            catch
+            {
+                return Unauthorized(new UnauthorizedError("google_invalid_token"));
+            }
+
+            UserLoginDto credentials = request;
+            credentials.Email = payload.Email; // set email from gapi payload
+
+            var user = await _userServices.HandleOauthAuthenticationAsync(credentials, OauthType.Google);
+            if (user == null)
+                return Unauthorized(new UnauthorizedError("google_oauth_error"));
+
+            var userData = HandleGenerateToken(user);
+            return Ok(userData);
+        }
+
+        /*
+        [HttpGet("email/{email?}")]
+        public async Task<IActionResult> CheckEmail(string email)
+        {
+            var result = await _userServices.EmailExistsAsync(email);
+            return Ok(result);
+        }
+
+        [HttpGet("username/{username?}")]
+        public async Task<IActionResult> CheckUsername(string username)
+        {
+            var result = await _userServices.UsernameExistsAsync(username);
+            return Ok(result);
+        }
+        */
+
+        private static UserData HandleGenerateToken(User user)
+        {
+            // Claims are not supported to be sent in JSON (no default constructor), so I've made this workaround
+            var policiesInClaims = new List<Claim>();
+            policiesInClaims.AddRange(user.Perms.Select(perm => new Claim(perm.PermKey, perm.PermValue)));
+
+            var policiesInString =
+                user.Perms.ToDictionary(perm => perm.PermKey, perm => perm.PermValue);
+
+            var roles = new List<string> { "user" };
+
+            if (user.IsPremium)
+                roles.Add("premium");
+
+            var response = new UserData
+            {
+                Policies = policiesInString,
+                Roles = roles,
+                Token = GenerateToken(user, roles, policiesInClaims),
+                CallBalance = user.CallBalance,
+                Language = user.Language
+            };
+
+            return response;
+        }
+
+        private static string GenerateToken(User user, IEnumerable<string> roles, IEnumerable<Claim> policies)
+        {
+            var header = new JwtHeader(
+                new SigningCredentials(
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(PrivateKeys.JwtSecretKey)
+                    ),
+                    SecurityAlgorithms.HmacSha256)
+            );
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.UserId),
+#pragma warning disable CS8604 // Possible null reference argument.
+                string.IsNullOrEmpty(user.Email) ? null : new Claim(ClaimTypes.Email, user.Email)
+#pragma warning restore CS8604 // Possible null reference argument.
+            };
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            claims.AddRange(policies);
+
+            var payload = new JwtPayload(
+                issuer: "MauiPServer",
+                audience: "MauiPClient",
+                claims: claims,
+                notBefore: DateTime.Now,
+                expires: DateTime.Now.AddDays(180)
+            );
+            var token = new JwtSecurityToken(header, payload);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+}
