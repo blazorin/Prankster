@@ -8,6 +8,7 @@ namespace Shared.ApiErrors
 
         public string Message { get; set; }
 
+#pragma warning disable CS8618
         public ApiError(int statusCode, string statusDescription)
         {
             this.StatusCode = statusCode;

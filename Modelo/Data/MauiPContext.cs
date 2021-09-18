@@ -5,6 +5,7 @@ namespace Model.Data
 {
     public class MauiPContext : DbContext
     {
+#pragma warning disable CS8618
         public DbSet<User> Users { get; set; }
         public DbSet<UserPerms> UserPerms { get; set; }
         public DbSet<Call> Calls { get; set; }
@@ -14,6 +15,7 @@ namespace Model.Data
         public DbSet<UserLog> UserLogs { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<IpAddress> IpAddresses { get; set; }
+#pragma warning restore CS8618 
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {

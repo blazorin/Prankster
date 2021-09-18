@@ -2,6 +2,7 @@ namespace Model.Data
 {
     public class Refer
     {
+#pragma warning disable CS8618
         public string ReferId { get; set; }
         public string ReferedUserId { get; set; }
 

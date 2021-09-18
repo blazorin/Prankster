@@ -10,6 +10,7 @@ namespace Model.Data
 {
     public class User
     {
+#pragma warning disable CS8618
         public string UserId { get; set; }
 
         [Required, StringLength(FieldLenghts.User.Identifier)]
