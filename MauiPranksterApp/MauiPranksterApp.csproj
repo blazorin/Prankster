@@ -66,6 +66,10 @@
 		<PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.0-rc.1.21452.15" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Shared\Shared.csproj" />
+	</ItemGroup>
+
 	<PropertyGroup>
 		<RuntimeIdentifier Condition="$(TargetFramework.Contains('-ios'))">iossimulator-x64</RuntimeIdentifier>
 		<UseInterpreter Condition="$(TargetFramework.Contains('-android'))">False</UseInterpreter>
