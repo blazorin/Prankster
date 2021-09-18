@@ -27,7 +27,7 @@ namespace Model.Data
             model.Entity<User>().HasIndex(u => u.Identifier).IsUnique(true);
             model.Entity<Call>().HasIndex(c => c.DateRequested).IsUnique(false);
             model.Entity<Transaction>().HasIndex(t => t.Date).IsUnique(false);
-            model.Entity<Refer>().HasIndex(r => r.ReferId).IsUnique(true);
+            model.Entity<Refer>().HasIndex(r => r.ReferedUserId).IsUnique(true);
             model.Entity<UserLog>().HasIndex(l => l.Date).IsUnique(false);
         }
     }

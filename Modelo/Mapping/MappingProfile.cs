@@ -29,6 +29,7 @@ namespace Model.Mapping
                 .ForMember(u => u.Perms, opt => opt.Ignore())
                 .ForMember(u => u.Transactions, opt => opt.Ignore())
                 .ForMember(u => u.Refers, opt => opt.Ignore())
+                .ForMember(u => u.IsReferred, opt => opt.Ignore())
                 .ForMember(u => u.LikedPranks, opt => opt.Ignore())
                 .ForMember(u => u.DeviceModels, opt => opt.Ignore())
                 .ForMember(u => u.IPAddresses, opt => opt.Ignore())

@@ -37,6 +37,7 @@ namespace Model.Data
         public float CallBalance { get; set; }
 
         public List<Refer> Refers { get; set; }
+        public bool IsReferred { get; set; }
         public bool IsBanned { get; set; }
         public bool IsPremium { get; set; }
         public bool TermsAccepted { get; set; } = true;
