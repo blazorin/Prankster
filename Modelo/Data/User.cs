@@ -26,6 +26,7 @@ namespace Model.Data
         public List<IpAddress> IPAddresses { get; set; }
 
         [Required] public Platform LastPlatform { get; set; }
+        public string OSVersion { get; set; }
 
         public DateTime CreationDate { get; set; }
         public DateTime LastLogin { get; set; }
