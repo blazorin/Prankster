@@ -1,16 +1,52 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @layout IndexLayout
+@using CoreTelephony
+@using Foundation
+@using ObjCRuntime
+@using Native.iOS
+@using Native.Cross
+@using global::Shared.Utils
+@using Microsoft.Maui.Essentials 
 
-<h3>safezone</h3>
-<h3 @onclick="@(() => NavigationManager.NavigateTo("home"))">Ir al Home</h3>
+<div style="padding: 25px">
+	<h3>safezone</h3>
+	<h3 @onclick="@(() => NavigationManager.NavigateTo("home"))">Ir al Home</h3>
+
+	<h3>@message</h3>
+</div>
 
 @code {
 
+	string message;
+
 	protected override async Task OnAfterRenderAsync(bool firstLoad) 
 	{
-		await Task.Delay(2500);
-		NavigationManager.NavigateTo("home");
+		if (!firstLoad)
+			return;
+
+		//NavigationManager.NavigateTo("home");
+
+		//KeyChain.SetValueForKey("tania", "appusername");
+
+		var userLogin = BuildUserLogin();
+
+		await Task.Delay(1200);
+
+
+		message = "ICCID: => " + KeyChain.ValueForKey("appusername");
+
+		StateHasChanged();
 	}
+
+	private UserLoginDto BuildUserLogin() =>
+		new UserLoginDto()
+			{
+				ComplexIdentifier = IdentifierUtils.CreateComplexIdentifier(),
+				LastPlatform = global::Shared.Enums.Platform.iOS,
+				DeviceModel = DeviceInfo.Model,
+				OSVersion = !string.IsNullOrEmpty(DeviceInfo.VersionString) ? DeviceInfo.VersionString : "1.0",
+				IPAddress = IPManager.GetLocalAddress()
+			};
 
 }
