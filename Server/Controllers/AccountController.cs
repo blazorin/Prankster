@@ -46,41 +46,58 @@ namespace Server.Controllers
             if (User?.Identity != null && User.Identity.IsAuthenticated)
                 return Forbid();
 
-            //TODO: Recaptcha
+            if (credentials.ComplexIdentifier is null || credentials.ComplexIdentifier.Count != 5 || !char.IsLetter(credentials.ComplexIdentifier[5].Last()) || !string.IsNullOrEmpty(credentials.Identifier))
+                return Unauthorized(new UnauthorizedError("broken_identifier"));
 
-            if (string.IsNullOrWhiteSpace(credentials.Identifier))
-                return Unauthorized(new UnauthorizedError("no_identifier_provided"));
-            if (await _userServices.IsBannedAsync(credentials.Identifier))
-                return Unauthorized(new UnauthorizedError("user_violated_tos"));
+            for (int i = 0; i < credentials.ComplexIdentifier.Count -1; i++)
+			{
+                if (!int.TryParse(credentials.ComplexIdentifier[i], out int _))
+                    return Unauthorized(new UnauthorizedError("broken_identifier"));
+            }
+
+            //TODO: Recaptcha
 
             if (string.IsNullOrWhiteSpace(credentials.IPAddress))
                 return Unauthorized(new UnauthorizedError("no_ip_address_provided"));
 
             if (credentials.LastPlatform is Platform.Missing)
                 return Unauthorized(new UnauthorizedError("no_platform_provided"));
+            if (credentials.LastPlatform is Platform.Android)
+                return Unauthorized(new UnauthorizedError("unsupported_platform"));
+
+            if (string.IsNullOrWhiteSpace(credentials.OSVersion) || credentials.OSVersion.Length > 10)
+                return Unauthorized(new UnauthorizedError("invalid_os"));
 
 
-            if (credentials.Identifier.Length > 50)
-                return Unauthorized(new UnauthorizedError("identifier_invalid"));
+
+            // in iOS, identifier is generated on the server
 
             if (!IPAddress.TryParse(credentials.IPAddress, out var _))
                 return Unauthorized(new UnauthorizedError("ip_address_invalid"));
 
-            // TODO: ipstack.com api implementation -> fetch country and city from IPAddress
-
-            if (!string.IsNullOrEmpty(credentials.DeviceModel) && credentials.DeviceModel.Length >= 50)
+            if (!string.IsNullOrEmpty(credentials.DeviceModel) && credentials.DeviceModel.Length > 40)
                 return Unauthorized(new UnauthorizedError("device_model_error"));
 
             if (!string.IsNullOrEmpty(credentials.Email))
                 return Unauthorized(new UnauthorizedError("not_oauth_login_method"));
 
+
+            // convert to simpleIdentifier
+            credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
+
+            if (credentials.Identifier.Length is > 20 or < 20)
+                return Unauthorized(new UnauthorizedError("broken_identifier"));
+
             if (!await _userServices.IdentifierExistsAsync(credentials.Identifier))
                 return await Register(credentials);
+         
+            if (await _userServices.IsBannedAsync(credentials.Identifier))
+                return Unauthorized(new UnauthorizedError("user_violated_tos"));
 
 
             var user = await _userServices.GetUserByAuthenticationAsync(credentials, UserLogType.Login);
             if (user == null)
-                return Unauthorized(new UnauthorizedError("email_or_password_incorrect"));
+                return Unauthorized(new UnauthorizedError("auth_generic_error"));
 
             #endregion
 
@@ -177,7 +194,8 @@ namespace Server.Controllers
                 Roles = roles,
                 Token = GenerateToken(user, roles, policiesInClaims),
                 CallBalance = user.CallBalance,
-                Language = user.Language
+                Language = user.Language,
+                FinalIdentifier = user.Identifier
             };
 
             return response;
