@@ -24,7 +24,7 @@ namespace MauiPranksterApp.Native.iOS
         {
             var record = ExistingRecordForKey(key);
             string valueForKey = ValueForKey(key, record); // debug purposes
-            Console.WriteLine("keyValue: => " + valueForKey);
+            Console.WriteLine("keyValueBefore: => " + (string.IsNullOrEmpty(valueForKey) ? "nothing" : valueForKey));
 
             // if the key already exists, remove it
             if (!string.IsNullOrEmpty(valueForKey))
@@ -45,7 +45,7 @@ namespace MauiPranksterApp.Native.iOS
             return new SecRecord(SecKind.GenericPassword)
             {
                 Account = key,
-                Service = "PranksterAppAuth",
+                Service = "PranksterApp",
                 Label = key,
                 ValueData = NSData.FromString(value, NSStringEncoding.UTF8),
             };
@@ -56,7 +56,7 @@ namespace MauiPranksterApp.Native.iOS
             return new SecRecord(SecKind.GenericPassword)
             {
                 Account = key,
-                Service = "PranksterAppAuth",
+                Service = "PranksterApp",
                 Label = key,
             };
         }

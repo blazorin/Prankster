@@ -7,7 +7,7 @@
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rc.1.21451.13" />
     </ItemGroup>
 
 </Project>

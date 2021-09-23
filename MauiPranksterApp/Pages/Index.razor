@@ -1,11 +1,11 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
+@inject CustomHttpClient HttpClient
 @layout IndexLayout
 @using CoreTelephony
 @using Foundation
 @using ObjCRuntime
 @using Native.iOS
-@using Native.Cross
 @using global::Shared.Utils
 @using Microsoft.Maui.Essentials 
 
@@ -29,24 +29,35 @@
 
 		//KeyChain.SetValueForKey("tania", "appusername");
 
-		var userLogin = BuildUserLogin();
+		var userLogin = await BuildUserLoginAsync();
+		var http = HttpClient;
 
-		await Task.Delay(1200);
+		await Task.Delay(1300);
+
+		KeyChain.SetValueForKey("tania123", "identifier");
 
 
-		message = "ICCID: => " + KeyChain.ValueForKey("appusername");
+		message = "ICCID: => " + KeyChain.ValueForKey("identifier");
 
 		StateHasChanged();
 	}
 
-	private UserLoginDto BuildUserLogin() =>
-		new UserLoginDto()
+	private Task<UserLoginDto> BuildUserLoginAsync() =>
+		Task.FromResult(new UserLoginDto()
 			{
 				ComplexIdentifier = IdentifierUtils.CreateComplexIdentifier(),
 				LastPlatform = global::Shared.Enums.Platform.iOS,
 				DeviceModel = DeviceInfo.Model,
-				OSVersion = !string.IsNullOrEmpty(DeviceInfo.VersionString) ? DeviceInfo.VersionString : "1.0",
-				IPAddress = IPManager.GetLocalAddress()
-			};
+				OSVersion = !string.IsNullOrEmpty(DeviceInfo.VersionString) ? DeviceInfo.VersionString : "1.0"
+			});
+
+	/*
+	private async Task<string> GetUserIpFromWebAsync()
+	{
+		var response = await HttpClient.c.GetAsync("https://api.my-ip.io/ip");
+
+		return response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : "255.255.255.255";
+	}
+	*/
 
 }

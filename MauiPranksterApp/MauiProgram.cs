@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using MauiPranksterApp.Shared.Services;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Hosting;
+using Microsoft.Extensions.Http;
 
 [assembly: XamlCompilationAttribute(XamlCompilationOptions.Compile)]
 
@@ -22,7 +24,9 @@ namespace MauiPranksterApp
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 })
+                .Services.AddHttpClient<CustomHttpClient>()
                 .Services.AddBlazorWebView();
+                
 
             return builder.Build();
         }
