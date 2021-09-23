@@ -18,6 +18,9 @@ namespace Model.Data
 
         // phone number sometimes may be set as SIM
         [Required] public IdentifierType IdentifierType { get; set; }
+        
+        // 4-digit support pin and is also an additional auth validation code
+        [Required] public int Pin { get; set; }
 
 
         [StringLength(FieldLenghts.User.Mail)] public string Email { get; set; }

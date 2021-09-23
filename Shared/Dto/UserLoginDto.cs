@@ -15,6 +15,7 @@ namespace Shared.Dto
 
         // simpleIdentifier
         public string Identifier { get; set; }
+        public int Pin { get; set; }
         public Platform LastPlatform { get; set; }
 
         [CanBeNull] public string DeviceModel { get; set; }

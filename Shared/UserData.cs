@@ -11,6 +11,7 @@ namespace Shared
         public string Token { get; set; }
         // it may have changed from ComplexIdentifier, if it already existed
         public string FinalIdentifier { get; set; }
+        public int Pin { get; set; }
 
         public float CallBalance { get; set; }
         public Language Language { get; set; }
