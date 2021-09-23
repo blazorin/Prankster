@@ -46,19 +46,48 @@ namespace Server.Controllers
             if (User?.Identity != null && User.Identity.IsAuthenticated)
                 return Forbid();
 
-            if (credentials.ComplexIdentifier is null || credentials.ComplexIdentifier.Count != 5 || !char.IsLetter(credentials.ComplexIdentifier[5].Last()) || !string.IsNullOrEmpty(credentials.Identifier))
-                return Unauthorized(new UnauthorizedError("broken_identifier"));
-
-            for (int i = 0; i < credentials.ComplexIdentifier.Count -1; i++)
-			{
-                if (!int.TryParse(credentials.ComplexIdentifier[i], out int _))
+            if (string.IsNullOrEmpty(credentials.Identifier))
+            {
+                if (credentials.ComplexIdentifier is null || credentials.ComplexIdentifier.Count != 5 || !char.IsLetter(credentials.ComplexIdentifier[4].Last()))
                     return Unauthorized(new UnauthorizedError("broken_identifier"));
+
+
+                for (int i = 0; i < credentials.ComplexIdentifier.Count - 1;)
+                {
+                    if (!int.TryParse(credentials.ComplexIdentifier[i], out int _))
+                        return Unauthorized(new UnauthorizedError("broken_identifier"));
+
+                    i++;
+                }
+
+                for (int i = 0; i < 2;) 
+                {
+                    if (!int.TryParse(credentials.ComplexIdentifier[4].ElementAt(i).ToString(), out int _))
+                        return Unauthorized(new UnauthorizedError("broken_identifier"));
+
+                    i++;
+                }
+                
+            }
+            else
+            {
+                if (!char.IsLetter(credentials.Identifier.Last()))
+                    return Unauthorized(new UnauthorizedError("broken_identifier"));
+
+
+                for (int i = 0; i < credentials.Identifier.Length - 1;)
+                {
+                    if (!int.TryParse(credentials.Identifier.ElementAt(i).ToString(), out int _))
+                        return Unauthorized(new UnauthorizedError("broken_identifier"));
+
+                    i++;
+                }
             }
 
-            //TODO: Recaptcha
 
-            if (string.IsNullOrWhiteSpace(credentials.IPAddress))
-                return Unauthorized(new UnauthorizedError("no_ip_address_provided"));
+               // IP is obtained from HttpContext
+            if (!string.IsNullOrWhiteSpace(credentials.IPAddress))
+                return Unauthorized(new UnauthorizedError("ip_address_error"));
 
             if (credentials.LastPlatform is Platform.Missing)
                 return Unauthorized(new UnauthorizedError("no_platform_provided"));
@@ -72,8 +101,12 @@ namespace Server.Controllers
 
             // in iOS, identifier is generated on the server
 
-            if (!IPAddress.TryParse(credentials.IPAddress, out var _))
+            var ip = HttpContext?.Connection?.RemoteIpAddress?.ToString();
+
+            if (!IPAddress.TryParse(ip, out var _))
                 return Unauthorized(new UnauthorizedError("ip_address_invalid"));
+
+            credentials.IPAddress = ip;
 
             if (!string.IsNullOrEmpty(credentials.DeviceModel) && credentials.DeviceModel.Length > 40)
                 return Unauthorized(new UnauthorizedError("device_model_error"));
@@ -81,9 +114,9 @@ namespace Server.Controllers
             if (!string.IsNullOrEmpty(credentials.Email))
                 return Unauthorized(new UnauthorizedError("not_oauth_login_method"));
 
-
-            // convert to simpleIdentifier
-            credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
+            if (string.IsNullOrEmpty(credentials.Identifier))
+                // convert to simpleIdentifier
+                credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
 
             if (credentials.Identifier.Length is > 20 or < 20)
                 return Unauthorized(new UnauthorizedError("broken_identifier"));
