@@ -12,7 +12,7 @@ namespace Model.Services
     {
         Task<User> GetUserByAuthenticationAsync(UserLoginDto credentials, UserLogType logType);
         Task<User> AddUserAsync(UserLoginDto newUserDto, UserLogType logType);
-        Task<User> HandleOauthAuthenticationAsync(UserLoginDto credentials, OauthType oauthType);
+        Task<User> HandleOauthAuthenticationAsync(UserLoginDto credentials, OauthType oauthType, bool emailExists);
         Task<bool> IdentifierExistsAsync(string identifier);
 
         Task<bool> EmailExistsAsync(string email);

@@ -141,10 +141,8 @@ namespace Model.Services
         }
 
         public async Task<User> HandleOauthAuthenticationAsync(UserLoginDto oauthCredentials,
-            OauthType oauthType)
+            OauthType oauthType, bool emailExists)
         {
-            var emailExists = await EmailExistsAsync(oauthCredentials.Email);
-
 
             var loginLogType = oauthType switch
             {
