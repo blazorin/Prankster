@@ -47,7 +47,7 @@ namespace Model.Services
 
                 storedUser = await _ctx.Users
                     .Where(user =>
-                        user.Identifier == credentials.Identifier)
+                        user.Identifier == credentials.Identifier && user.Pin == credentials.Pin)
                     .Include(user => user.Logs)
                     .Include(user => user.DeviceModels)
                     .Include(user => user.IPAddresses)
@@ -58,7 +58,8 @@ namespace Model.Services
             if (storedUser == null)
                 return null;
 
-            // first Google (Gapi) or Facebook login with the Identifier / if there was a previous email, access from it will be revoked
+            // first Google (Gapi) or Facebook login with this email with the Identifier
+            // if there was a previous email, access from it will be revoked
             if (logType is UserLogType.GoogleLinked or UserLogType.FacebookLinked)
                 storedUser.Email = credentials.Email;
 
@@ -79,6 +80,8 @@ namespace Model.Services
             storedUser.Logs.Add(new UserLog
                 { Date = DateTime.Now, UserLogId = Guid.NewGuid().ToString() + Guid.NewGuid(), UserLogType = logType });
             await _ctx.SaveChangesAsync();
+
+            storedUser.Pin = new Random().Next(1000, 9999);
 
             return storedUser;
         }
@@ -123,7 +126,7 @@ namespace Model.Services
             user.UserId = Guid.NewGuid().ToString();
             user.CreationDate = DateTime.Now;
             user.LastLogin = DateTime.Now;
-            user.IdentifierType = GetIdentifierType(newUserDto.Identifier);
+            user.IdentifierType = IdentifierType.KeychainIdentifier; //GetIdentifierType(newUserDto.Identifier);
 
             /*
             if (logType == UserLogType.SignUp)

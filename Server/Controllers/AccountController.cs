@@ -46,6 +46,8 @@ namespace Server.Controllers
             if (User?.Identity != null && User.Identity.IsAuthenticated)
                 return Forbid();
 
+            bool isLogin = false;
+            // sign up attempt
             if (string.IsNullOrEmpty(credentials.Identifier))
             {
                 if (credentials.ComplexIdentifier is null || credentials.ComplexIdentifier.Count != 5 || !char.IsLetter(credentials.ComplexIdentifier[4].Last()))
@@ -67,10 +69,16 @@ namespace Server.Controllers
 
                     i++;
                 }
-                
+
+                // convert to simpleIdentifier
+                credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
+
             }
-            else
+            else // login attempt
             {
+                if (credentials.Pin is 0)
+                    return Unauthorized(new UnauthorizedError("broken_identifier"));
+
                 if (!char.IsLetter(credentials.Identifier.Last()))
                     return Unauthorized(new UnauthorizedError("broken_identifier"));
 
@@ -82,10 +90,15 @@ namespace Server.Controllers
 
                     i++;
                 }
+
+                isLogin = true;
             }
 
+            if (credentials.Identifier.Length is > 20 or < 20)
+                return Unauthorized(new UnauthorizedError("broken_identifier"));
 
-               // IP is obtained from HttpContext
+
+            // IP is obtained from HttpContext
             if (!string.IsNullOrWhiteSpace(credentials.IPAddress))
                 return Unauthorized(new UnauthorizedError("ip_address_error"));
 
@@ -99,14 +112,13 @@ namespace Server.Controllers
 
 
 
-            // in iOS, identifier is generated on the server
+            // get IP from Cloudflare header
+            string? ipHeader = HttpContext?.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
 
-            var ip = HttpContext?.Connection?.RemoteIpAddress?.ToString();
-
-            if (!IPAddress.TryParse(ip, out var _))
+            if (!IPAddress.TryParse(ipHeader, out var ip))
                 return Unauthorized(new UnauthorizedError("ip_address_invalid"));
 
-            credentials.IPAddress = ip;
+            credentials.IPAddress = ip.ToString();
 
             if (!string.IsNullOrEmpty(credentials.DeviceModel) && credentials.DeviceModel.Length > 40)
                 return Unauthorized(new UnauthorizedError("device_model_error"));
@@ -114,15 +126,9 @@ namespace Server.Controllers
             if (!string.IsNullOrEmpty(credentials.Email))
                 return Unauthorized(new UnauthorizedError("not_oauth_login_method"));
 
-            if (string.IsNullOrEmpty(credentials.Identifier))
-                // convert to simpleIdentifier
-                credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
-
-            if (credentials.Identifier.Length is > 20 or < 20)
-                return Unauthorized(new UnauthorizedError("broken_identifier"));
-
             if (!await _userServices.IdentifierExistsAsync(credentials.Identifier))
-                return await Register(credentials);
+                return isLogin ? Unauthorized(new UnauthorizedError("identifier_unallowed")) : await Register(credentials);
+            
          
             if (await _userServices.IsBannedAsync(credentials.Identifier))
                 return Unauthorized(new UnauthorizedError("user_violated_tos"));
@@ -130,7 +136,7 @@ namespace Server.Controllers
 
             var user = await _userServices.GetUserByAuthenticationAsync(credentials, UserLogType.Login);
             if (user == null)
-                return Unauthorized(new UnauthorizedError("auth_generic_error"));
+                return Unauthorized(new UnauthorizedError("auth_account_issue"));
 
             #endregion
 
@@ -163,8 +169,10 @@ namespace Server.Controllers
             if (User?.Identity != null && User.Identity.IsAuthenticated)
                 return Forbid();
 
-            if (!await _userServices.IdentifierExistsAsync(request.Identifier))
-                return Unauthorized(new UnauthorizedError("google_needs_a_signup"));
+            var emailExists = await _userServices.EmailExistsAsync(request.Email);
+
+            if (!emailExists && (string.IsNullOrEmpty(request.Identifier) || request.Pin == 0))
+                return Unauthorized(new UnauthorizedError("google_needs_identifier"));
 
             GoogleJsonWebSignature.Payload payload;
             try
@@ -228,7 +236,8 @@ namespace Server.Controllers
                 Token = GenerateToken(user, roles, policiesInClaims),
                 CallBalance = user.CallBalance,
                 Language = user.Language,
-                FinalIdentifier = user.Identifier
+                FinalIdentifier = user.Identifier,
+                Pin = user.Pin
             };
 
             return response;
