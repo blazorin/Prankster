@@ -3,6 +3,7 @@ namespace Shared.Enums
     public enum IdentifierType
     {
         SIM,
-        PhoneNumber
+        PhoneNumber,
+        KeychainIdentifier
     }
 }
