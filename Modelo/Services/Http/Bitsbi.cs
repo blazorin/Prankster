@@ -11,6 +11,8 @@ namespace Model.Services.Http
         public Bitsbi(HttpClient client)
         {
             client.BaseAddress = new Uri(WorldWideTelephony.AccessPoint);
+
+            client.Timeout = TimeSpan.FromSeconds(15);
             
             client.DefaultRequestHeaders.Add("Accept",
                 "application/vnd.github.v3+json");
