@@ -79,9 +79,9 @@ namespace Model.Services
             storedUser.LastPlatform = credentials.LastPlatform;
             storedUser.Logs.Add(new UserLog
                 { Date = DateTime.Now, UserLogId = Guid.NewGuid().ToString() + Guid.NewGuid(), UserLogType = logType });
-            await _ctx.SaveChangesAsync();
 
-            storedUser.Pin = new Random().Next(1000, 9999);
+
+            await _ctx.SaveChangesAsync();
 
             return storedUser;
         }
@@ -127,6 +127,7 @@ namespace Model.Services
             user.CreationDate = DateTime.Now;
             user.LastLogin = DateTime.Now;
             user.IdentifierType = IdentifierType.KeychainIdentifier; //GetIdentifierType(newUserDto.Identifier);
+            user.Pin = new Random().Next(1000, 9999);
 
             /*
             if (logType == UserLogType.SignUp)
