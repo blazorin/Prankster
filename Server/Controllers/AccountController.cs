@@ -155,6 +155,7 @@ namespace Server.Controllers
              * Previous checks already done!
              */
 
+            newUser.Pin = new Random().Next(1000, 9999);
             var user = await _userServices.AddUserAsync(newUser, UserLogType.SignUp);
 
             var userData = HandleGenerateToken(user);

@@ -127,7 +127,6 @@ namespace Model.Services
             user.CreationDate = DateTime.Now;
             user.LastLogin = DateTime.Now;
             user.IdentifierType = IdentifierType.KeychainIdentifier; //GetIdentifierType(newUserDto.Identifier);
-            user.Pin = new Random().Next(1000, 9999);
 
             /*
             if (logType == UserLogType.SignUp)
