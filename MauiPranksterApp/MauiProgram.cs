@@ -7,6 +7,8 @@ using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Hosting;
 using Microsoft.Extensions.Http;
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 
 [assembly: XamlCompilationAttribute(XamlCompilationOptions.Compile)]
 
@@ -25,8 +27,11 @@ namespace MauiPranksterApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 })
                 .Services.AddHttpClient<CustomHttpClient>()
-                .Services.AddBlazorWebView();
-                
+                .Services.AddBlazorWebView()
+
+                .AddBlazoredLocalStorage()
+                .AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
 
             return builder.Build();
         }
