@@ -2344,3 +2344,82 @@ body{
 .hiddenTextField-white-tablet {
     line-height: 44px;
 }
+
+/*===============================================
+ screen css 
+================================================*/
+.dz-screen .dz-screen-content {
+    text-align: center;
+    padding: 0 15px;
+    position: relative;
+}
+
+.dz-screen .dz-screen-content .dz-left {
+        background: transparent;
+        color: var(--white);
+        font-size: 17px;
+        height: auto;
+        width: auto;
+        list-style: none;
+        font-size: 20px;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        margin: 0;
+        padding: 0;
+}
+
+.dz-screen .dz-screen-content h2 {
+        font-size: 20px;
+        line-height: 25px;
+        font-family: SFProReg;
+        font-weight: normal;
+}
+
+.dz-screen .dz-screen-content p {
+        font-size: 13px;
+        line-height: 18px;
+        font-family: SFProReg;
+}
+
+.dz-screen .dz-screen-content button, .dz-screen .dz-screen-content a {
+        display: inline-block;
+        line-height: 50px;
+        border-radius: 8px;
+        font-size: 17px;
+        font-family: SFProSemiBold;
+
+
+}
+
+.dz-screen1 .dz-screen-content {
+    padding-top: 489px;
+    padding-bottom: 40px;
+}
+
+.dz-screen1 .dz-screen-content h2 {
+        color: var(--grey70);
+        padding-top: 30px;
+}
+
+.dz-screen1 .dz-screen-content p {
+        color: var(--grey40);
+        padding-top: 30px;
+        padding-bottom: 32px;
+}
+
+.dz-screen1 .dz-screen-content button {
+        width: 50%;
+        background: var(--white);
+        color: var(--blue);
+        font-family: SFProSemiBold;
+}
+
+.dz-screen1 .dz-screen-content button:first-child {
+            margin-right: 9px;
+}
+
+.dz-screen1 .dz-screen-content button.dz-active {
+            background: var(--blue);
+            color: var(--white);
+}
