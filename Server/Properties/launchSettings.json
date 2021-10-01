@@ -1,27 +1,25 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://localhost:80",
-      "sslPort": 443
+      "applicationUrl": "http://localhost:49679/",
+      "sslPort": 44382
     }
   },
   "profiles": {
     "Server": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
       "launchUrl": "pranksterapp",
-      "applicationUrl": "https://localhost:443",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:443",
+      "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": false,
       "launchUrl": "pranksterapp",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
