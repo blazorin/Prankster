@@ -20,6 +20,7 @@ namespace Shared.Enums
         CountryChanged,
         ChatMessage,
         Notification,
-        Kyc
+        Kyc,
+        AuthCheck
     }
 }
