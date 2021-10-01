@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Shared.Dto
 {
-    public class UserLoginDto
+    public class UserLoginDto : BasicUserLogDto
     {
         /*
          * Identifier
@@ -16,13 +16,6 @@ namespace Shared.Dto
         // simpleIdentifier
         public string Identifier { get; set; }
         public int Pin { get; set; }
-        public Platform LastPlatform { get; set; }
-
-        [CanBeNull] public string DeviceModel { get; set; }
-
-        [CanBeNull] public string OSVersion { get; set; }
-
-        public string IPAddress { get; set; }
 
         // email is filled if comes from oauth
         public string Email { get; set; }
