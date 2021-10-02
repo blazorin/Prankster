@@ -18,6 +18,9 @@ using Google.Apis.Auth;
 using Model.Enums;
 using Shared.Enums;
 using Server.Secure;
+using Shared.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Model.Extensions;
 
 namespace Server.Controllers
 {
@@ -26,12 +29,12 @@ namespace Server.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IUserServices _userServices;
-        private IConfiguration _configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public AccountController(IUserServices userServices, IConfiguration configuration)
         {
             _userServices = userServices;
-            _configuration = configuration;
+            Configuration = configuration;
         }
 
         [HttpPost("auth")]
@@ -73,6 +76,15 @@ namespace Server.Controllers
                 // convert to simpleIdentifier
                 credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
 
+                if (await _userServices.IdentifierExistsAsync(credentials.Identifier))
+                {
+                    var identifier = IdentifierUtils.CreateComplexIdentifier();
+                    credentials.Identifier = string.Empty;
+
+                    identifier.ForEach(part => credentials.Identifier += part);
+                }
+                    
+
             }
             else // login attempt
             {
@@ -98,30 +110,10 @@ namespace Server.Controllers
                 return Unauthorized(new UnauthorizedError("broken_identifier"));
 
 
-            // IP is obtained from HttpContext
-            if (!string.IsNullOrWhiteSpace(credentials.IPAddress))
-                return Unauthorized(new UnauthorizedError("ip_address_error"));
+            IActionResult? checkLogResult = CheckUserLog(credentials);
 
-            if (credentials.LastPlatform is Platform.Missing)
-                return Unauthorized(new UnauthorizedError("no_platform_provided"));
-            if (credentials.LastPlatform is Platform.Android)
-                return Unauthorized(new UnauthorizedError("unsupported_platform"));
-
-            if (string.IsNullOrWhiteSpace(credentials.OSVersion) || credentials.OSVersion.Length > 10)
-                return Unauthorized(new UnauthorizedError("invalid_os"));
-
-
-
-            // get IP from Cloudflare header
-            string? ipHeader = HttpContext?.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
-
-            if (!IPAddress.TryParse(ipHeader, out var ip))
-                return Unauthorized(new UnauthorizedError("ip_address_invalid"));
-
-            credentials.IPAddress = ip.ToString();
-
-            if (!string.IsNullOrEmpty(credentials.DeviceModel) && credentials.DeviceModel.Length > 40)
-                return Unauthorized(new UnauthorizedError("device_model_error"));
+            if (checkLogResult is not null)
+                return checkLogResult;
 
             if (!string.IsNullOrEmpty(credentials.Email))
                 return Unauthorized(new UnauthorizedError("not_oauth_login_method"));
@@ -149,7 +141,7 @@ namespace Server.Controllers
         }
 
 
-        public async Task<IActionResult> Register(UserLoginDto newUser)
+        private async Task<IActionResult> Register(UserLoginDto newUser)
         {
             /*
              * Previous checks already done!
@@ -182,7 +174,7 @@ namespace Server.Controllers
                 payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken,
                     new GoogleJsonWebSignature.ValidationSettings
                     {
-                        Audience = new[] { _configuration["Authentication:Google:ClientId"] }
+                        Audience = new[] { Configuration["Authentication:Google:ClientId"] }
                     });
             }
             catch
@@ -199,6 +191,46 @@ namespace Server.Controllers
 
             var userData = HandleGenerateToken(user);
             return Ok(userData);
+        }
+
+        [Authorize]
+        [HttpPut("auth/check")]
+        public async Task<IActionResult> AuthCheck(BasicUserLogDto basicUserLog)
+        {
+            IActionResult? checkLogResult = CheckUserLog(basicUserLog);
+
+            if (checkLogResult is not null)
+                return checkLogResult;
+
+            string id = User.GetId();
+            bool result = await _userServices.HandleAuthCheckAsync(id, basicUserLog);
+
+            return result is true ? Ok() : Conflict(new ConflictError("auth_check_error"));
+        }
+
+        private IActionResult? CheckUserLog(BasicUserLogDto basicUserLog)
+		{
+            if (basicUserLog.LastPlatform is Platform.Missing)
+                return Unauthorized(new UnauthorizedError("no_platform_provided"));
+            if (basicUserLog.LastPlatform is Platform.Android)
+                return Unauthorized(new UnauthorizedError("unsupported_platform"));
+
+            if (string.IsNullOrWhiteSpace(basicUserLog.OSVersion) || basicUserLog.OSVersion.Length > 15)
+                return Unauthorized(new UnauthorizedError("invalid_os"));
+           
+
+            // get IP from Cloudflare header
+            string? ipHeader = HttpContext?.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
+
+            if (!IPAddress.TryParse(ipHeader, out var ip))
+                return Unauthorized(new UnauthorizedError("ip_address_invalid"));
+
+            basicUserLog.IPAddress = ip.ToString();
+
+            if (!string.IsNullOrEmpty(basicUserLog.DeviceModel) && basicUserLog.DeviceModel.Length > 40)
+                return Unauthorized(new UnauthorizedError("device_model_error"));
+
+            return null;
         }
 
         /*

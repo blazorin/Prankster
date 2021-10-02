@@ -65,7 +65,8 @@ namespace Model.Services
 
             storedUser.DeviceModels.Add(new Device
             {
-                DeviceModel = string.IsNullOrEmpty(credentials.DeviceModel) ? "Unknown" : credentials.DeviceModel,
+                DeviceModel = string.IsNullOrEmpty(credentials.DeviceModel) ? "Unknown" : credentials.DeviceModel +
+                $" OS: {credentials.OSVersion}",
                 DeviceId = Guid.NewGuid() + Guid.NewGuid().ToString()
             });
             storedUser.IPAddresses.Add(new IpAddress
@@ -110,7 +111,8 @@ namespace Model.Services
             {
                 new()
                 {
-                    DeviceModel = string.IsNullOrEmpty(newUserDto.DeviceModel) ? "Unknown" : newUserDto.DeviceModel,
+                    DeviceModel = (string.IsNullOrEmpty(newUserDto.DeviceModel) ? "Unknown" : newUserDto.DeviceModel)+
+                    $" OS: {newUserDto.OSVersion}",
                     DeviceId = Guid.NewGuid() + Guid.NewGuid().ToString()
                 }
             };
@@ -127,6 +129,10 @@ namespace Model.Services
             user.CreationDate = DateTime.Now;
             user.LastLogin = DateTime.Now;
             user.IdentifierType = IdentifierType.KeychainIdentifier; //GetIdentifierType(newUserDto.Identifier);
+            user.TermsAccepted = true;
+
+            // Give a free prank
+            user.CallBalance = 1;
 
             /*
             if (logType == UserLogType.SignUp)
@@ -151,6 +157,40 @@ namespace Model.Services
             };
 
             return await GetUserByAuthenticationAsync(oauthCredentials, loginLogType);
+        }
+
+        public async Task<bool> HandleAuthCheckAsync(string userId, BasicUserLogDto basicUserLog)
+		{
+            User storedUser = await _ctx.Users.Where(user => user.UserId == userId)
+                              .Include(user => user.Logs)
+                              .Include(user => user.DeviceModels)
+                              .Include(user => user.IPAddresses)
+                              .FirstOrDefaultAsync();
+
+            if (storedUser == null)
+                return false;
+
+            storedUser.DeviceModels.Add(new Device
+            {
+                DeviceModel = (string.IsNullOrEmpty(basicUserLog.DeviceModel) ? "Unknown" : basicUserLog.DeviceModel) +
+                $" OS: {basicUserLog.OSVersion}",
+                DeviceId = Guid.NewGuid() + Guid.NewGuid().ToString()
+            });
+
+            storedUser.IPAddresses.Add(new IpAddress
+            {
+                Value = basicUserLog.IPAddress,
+                IpAddressId = Guid.NewGuid() + Guid.NewGuid().ToString()
+            });
+
+            storedUser.LastLogin = DateTime.Now;
+            storedUser.LastPlatform = basicUserLog.LastPlatform;
+
+            storedUser.Logs.Add(new UserLog
+            { Date = DateTime.Now, UserLogId = Guid.NewGuid().ToString() + Guid.NewGuid(), UserLogType = UserLogType.AuthCheck });
+
+            await _ctx.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> IdentifierExistsAsync(string identifier)
