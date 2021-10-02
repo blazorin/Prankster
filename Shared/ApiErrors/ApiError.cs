@@ -30,5 +30,10 @@ namespace Shared.ApiErrors
         {
             this.Message = message;
         }
-    }
+
+		public override string ToString()
+		{
+            return $"statuscode: {StatusCode} ; message: {Message}";
+		}
+	}
 }
