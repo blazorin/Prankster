@@ -9,7 +9,7 @@ namespace MauiPranksterApp.Shared.Services
 
         public CustomHttpClient(HttpClient httpClient)
         {
-            httpClient.Timeout = TimeSpan.FromSeconds(7);
+            httpClient.Timeout = TimeSpan.FromSeconds(15);
             httpClient.BaseAddress = new Uri("https://api.pranksterapp.com/");
             httpClient.DefaultRequestHeaders.Add("Prankster-Platform","ios-app");
 

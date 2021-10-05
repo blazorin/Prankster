@@ -117,7 +117,7 @@
      <!-- top-right nav -->
 
         
-            <div class="dz-home dz-home3 dz-home4 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false" style="background: var(--@(!_isOnHomePage ? (!_darkEnabledInit ? "white" : "grey70") : string.Empty))">
+            <div class="dz-home dz-home3 dz-home4 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false" style="@(!_isOnHomePage ? (!_darkEnabledInit ? "background: var(--white)" : "background: var(--grey70)") : string.Empty)">
             @Body
             </div>
        
