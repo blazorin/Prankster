@@ -30,8 +30,10 @@ window.darkMode = (function () {
                 mode.checked = true;
             }
             else {
-                var hiddentextField = document.querySelector('#hiddenTextField');
-                hiddentextField.classList.add('hiddenTextField-white');
+                if (window.location.pathname == "/home") {
+                    var hiddentextField = document.querySelector('#hiddenTextField');
+                    hiddentextField.classList.add('hiddenTextField-white');
+                }
             }
         },
         get: function () {
@@ -63,14 +65,18 @@ function addDark(isRemoving) {
     // query elements
     var mode = document.querySelector('#enableMode');
     var add = document.querySelectorAll('.dz-mode');
-    var hiddentextField = document.querySelector('#hiddenTextField');
+    if (window.location.pathname == "/home") {
+        var hiddentextField = document.querySelector('#hiddenTextField');
+    }
 
     if (localStorage.mode) {
         add.forEach(d => {
             d.classList.add('dz-dark-mode');
         });
 
-        hiddentextField.classList.remove('hiddenTextField-white');
+        if (window.location.pathname == "/home") {
+            hiddentextField.classList.remove('hiddenTextField-white');
+        }
 
         // Set switch to true
         mode.checked = true;
@@ -81,7 +87,9 @@ function addDark(isRemoving) {
             d.classList.remove('dz-dark-mode');
         });
 
-        hiddentextField.classList.add('hiddenTextField-white');
+        if (window.location.pathname == "/home") {
+            hiddentextField.classList.add('hiddenTextField-white');
+        }
     }
 
     setOverscrollBackground();

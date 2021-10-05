@@ -145,8 +145,6 @@
 
 @code {
 
-    bool _hasLoaded;
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
 
@@ -155,9 +153,6 @@
 
         // load PranksterApp Javascript Core
         await JsRuntime.InvokeVoidAsync("loadScript", "./assets/js/script.js");
-
-        _hasLoaded = true;
-        StateHasChanged();
 
         // TODO: Check if user is on Ipad for bigger loading skeleton at swiper (mainly apply 2x Height)
     }

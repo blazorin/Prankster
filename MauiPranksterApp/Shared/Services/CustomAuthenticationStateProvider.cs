@@ -1,6 +1,5 @@
 ﻿using Blazored.LocalStorage;
 using MauiPranksterApp.Native.iOS;
-using Microsoft.AspNetCore.Components.Authorization;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -16,15 +15,16 @@ using Shared.Dto;
 using Shared.Utils;
 using Microsoft.Maui.Essentials;
 using Shared.ApiErrors;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace MauiPranksterApp.Shared.Services
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient;
+        private readonly CustomHttpClient _httpClient;
         private readonly ILocalStorageService _localStorage;
 
-        public CustomAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
+        public CustomAuthenticationStateProvider(CustomHttpClient httpClient, ILocalStorageService localStorage)
         {
             _httpClient = httpClient;
             _localStorage = localStorage;
@@ -46,14 +46,17 @@ namespace MauiPranksterApp.Shared.Services
 
                 if (platform == global::Shared.Enums.Platform.iOS)
                 {
-                    string identifier = KeyChain.ValueForKey("simpleidentifier");
-                    string pin = KeyChain.ValueForKey("pin");
+                    //string identifier = KeyChain.ValueForKey("simpleidentifier");
+                    //string pin = KeyChain.ValueForKey("pin");
+                    string identifier = null;
+                    string pin = null;
+
                     if (!int.TryParse(pin, out int checkedPin))
                         pin = null;
 
                     if (!string.IsNullOrEmpty(identifier) && !string.IsNullOrEmpty(pin))
                     {
-                        var response = await _httpClient.PostAsJsonAsync("account/auth", await BuildUserLoginDtoAsync(identifier, checkedPin));
+                        var response = await _httpClient.c.PostAsJsonAsync("account/auth", await BuildUserLoginDtoAsync(identifier, checkedPin));
                         if (!response.IsSuccessStatusCode)
                         {
                             if (response.StatusCode == HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotImplemented || response.StatusCode ==HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.RequestTimeout || response.StatusCode == HttpStatusCode.GatewayTimeout)
@@ -93,7 +96,7 @@ namespace MauiPranksterApp.Shared.Services
              * user may contact us to see what happened and check if we can give his call ballance back
              */
            
-            var authCheckResponse = await _httpClient.PostAsJsonAsync("account/auth/check", await BuildUserLogDtoAsync());
+            var authCheckResponse = await _httpClient.c.PostAsJsonAsync("account/auth/check", await BuildUserLogDtoAsync());
             if (!authCheckResponse.IsSuccessStatusCode)
             {
                 if (authCheckResponse.StatusCode == HttpStatusCode.InternalServerError || authCheckResponse.StatusCode == HttpStatusCode.NotImplemented || authCheckResponse.StatusCode == HttpStatusCode.NotFound || authCheckResponse.StatusCode == HttpStatusCode.RequestTimeout || authCheckResponse.StatusCode == HttpStatusCode.GatewayTimeout)
@@ -114,7 +117,7 @@ namespace MauiPranksterApp.Shared.Services
 
             // If everything went well, user is now authenticated into the app
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", storedUser.Token);
+            _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", storedUser.Token);
 
             // TODO: Para I18N, establecer el lenguaje preferido contenido en UserData
 
@@ -128,7 +131,7 @@ namespace MauiPranksterApp.Shared.Services
             NotifyAuthenticationStateChanged(Task.FromResult(authState));
 
             await _localStorage.SetItemAsync("user", userData);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", userData.Token);
+            _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", userData.Token);
         }
 
         public async Task ClearCurrentUserAsync()
@@ -138,7 +141,7 @@ namespace MauiPranksterApp.Shared.Services
             NotifyAuthenticationStateChanged(authStateTask);
 
             await _localStorage.RemoveItemAsync("user");
-            _httpClient.DefaultRequestHeaders.Remove("Authorization");
+            _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
         }
 
         private static AuthenticationState CreateAuthState(UserData userData)
@@ -185,9 +188,10 @@ namespace MauiPranksterApp.Shared.Services
         });
 
         private static void SetKeychain(string simpleIdentifier, string pin)
-		{
+		{   /*
             KeyChain.SetValueForKey("simpleidentifier", simpleIdentifier);
             KeyChain.SetValueForKey("pin", pin);
+            */
 		}
 
  

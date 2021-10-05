@@ -1,0 +1,27 @@
+﻿@page "/"
+@using System.IO
+@using Native.iOS
+@using global::Shared.Utils
+@using Microsoft.Maui.Essentials 
+@using Blazored.LocalStorage
+@inject ILocalStorageService _localStorage
+@inject NavigationManager _navigationManager
+
+
+ <div class="dz-container dz-p0">
+        
+	<div class="dz-screen dz-screen1" data-img="assets/images/background.png">
+          <div class="dz-screen-content">
+                        
+               <h2>Your cryptocurrency application</h2>
+               <p>Use commercial free photos from Unsplash or Pexels to fill the launch screen background with related images</p>
+
+				<div class="dz-flex-style" style="align-items: center">
+					<button style="background: var(--grey5);" @onclick='() => _navigationManager.NavigateTo("home")'>Hi</button> 
+                    <button class="dz-active">second button</button>
+                </div>
+
+          </div>
+	 </div>
+
+ </div>

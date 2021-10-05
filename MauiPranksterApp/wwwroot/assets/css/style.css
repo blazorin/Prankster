@@ -304,7 +304,7 @@ div.spinner {
  index css 
 ================================================*/
 /* menu css */
-.menu{
+.menu {
     /*background: var(--gradient-primary);*/
     position: fixed;
     width: 100%;
@@ -319,6 +319,10 @@ div.spinner {
     -webkit-align-items: center;
     align-items: center;
     z-index: 9999;
+    -webkit-transition: all linear 0.1s;
+    -moz-transition: all linear 0.1s;
+    -ms-transition: all linear 0.1s;
+    -o-transition: all linear 0.1s;
 }
 .menu .toggle-btn i{
     color: var(--white);
@@ -327,6 +331,10 @@ div.spinner {
 .menu .dz-btn-grp button{
     position: relative;
 }
+.menu.menu-hidden {
+    visibility: hidden
+}
+
 .menu .dz-btn-grp button:first-child{
     padding-right: 15px;
     padding-left: 15px;
@@ -1975,9 +1983,10 @@ div.spinner {
 .dz-home4.dz-dark-mode .dz-trend .dz-title a{
     color: var(--grey10);
 }
-.dz-home4.dz-dark-mode .dz-appbar .dz-search{
-    background: var(--black);
-    color: var(--white);
+.dz-home4.dz-dark-mode .dz-appbar .dz-search {
+        background: var(--black);
+        color: var(--white);
+        border: 1px solid var(--black);
 }
 .dz-home4.dz-dark-mode .dz-appbar .dz-search::placeholder{
     color: var(--grey0);
@@ -2251,6 +2260,10 @@ body{
     }
 }
 
+.dz-tab-bar.tab-bar-hidden {
+    visibility: hidden;
+}
+
 /* Dark Mode Switch */
 .darkSwitch-icon {
     display: inline-block;
@@ -2393,8 +2406,12 @@ body{
 }
 
 .dz-screen1 .dz-screen-content {
-    padding-top: 489px;
-    padding-bottom: 40px;
+    padding: 9px 15px 15px 15px;
+    position: fixed;
+    bottom: 1vw;
+    left: 0;
+    z-index: 99;
+    width: 100%;
 }
 
 .dz-screen1 .dz-screen-content h2 {
@@ -2422,4 +2439,31 @@ body{
 .dz-screen1 .dz-screen-content button.dz-active {
             background: var(--blue);
             color: var(--white);
+}
+
+/*===============================================
+    Navigation Wrapers
+================================================*/
+
+.navigation-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    -webkit-transition: transform 0.38s;
+    transition: transform 0.38s;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.navigation-wrapper.rtol {
+    -webkit-transform: translate3d(100vw, 0, 0);
+    transform: translate3d(100vw, 0, 0);
+}
+
+.navigation-wrapper.ltor {
+    -webkit-transform: translate3d(-100vw, 0, 0);
+    transform: translate3d(-100vw, 0, 0);
 }

@@ -2,10 +2,13 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 @implements IDisposable
+@inject NavigationManager NavigationManager
+
+@if (_modeloaded) {
 
   <div class="wrapper dz-mode @SupportDarkMode()">
         <!-- menu -->
-        <div class="menu">
+        <div class="menu @(!_isOnHomePage ? "menu-hidden" : string.Empty)">
             <button class="toggle-btn" disabled style="visibility: hidden" />
             <div class="dz-btn-grp">
                 
@@ -13,28 +16,7 @@
                
             </div>
         </div>
-        <div class="m-menu__overlay"></div>
-        <!-- main menu -->
-        <div class="m-menu">
-            <div class="m-menu__header">
-                <button class="m-menu__close">
-                    <i class="dz-icon-close"></i>
-                </button>
-                <div class="dz-user">
-                    <img src="assets/images/angela-mayer.png" alt="">
-                    <div class="dz-text">
-                        <a href="#!">Alberto Romero</a>
-                        <h3>
-                            <i class="dz-icon-checkmark-circle"></i>
-                            Developer
-                        </h3>
-                    </div>
-                </div>
-            </div>
-            <ul>
-			</ul>
-        </div>
-        <!-- end main menu -->
+        <!-- end menu -->
     </div>
 
       <!-- top-right nav -->
@@ -134,19 +116,16 @@
     </div>
      <!-- top-right nav -->
 
-        @if (_isOnIndexPage)
-        {
-            <div class="dz-home dz-home3 dz-home4 dz-home2 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false">
+        
+            <div class="dz-home dz-home3 dz-home4 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false" style="background: var(--@(!_isOnHomePage ? (!_darkEnabledInit ? "white" : "grey70") : string.Empty))">
             @Body
             </div>
-        } else {
-            @Body
-        }
+       
 
     <!-- start footer -->
     <div class="dz-footer">
         
-        <div class="dz-tab-bar dz-tab-icon dz-flex-style dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false">
+        <div class="dz-tab-bar dz-tab-icon dz-flex-style dz-mode @SupportDarkMode() @(!_isOnHomePage ? "tab-bar-hidden" : string.Empty)" @onclick="() => _settingsOpen = false">
                 <button class="dz-bar-btn dz-bar-btn-secondary">
                         <i class="dz-icon-star" style="color: #FAA501"></i>        
                 </button>
@@ -156,7 +135,7 @@
                 <button class="dz-bar-btn dz-bar-cam-bg">
                         <i class="dz-icon-phone" style="color: var(--white)"></i>
                 </button>
-                <button class="dz-bar-btn dz-bar-btn-secondary" style="bottom: 5px; position: relative"> 
+                <button class="dz-bar-btn dz-bar-btn-secondary" style="bottom: 5px; position: relative" @onclick='() => NavigationManager.NavigateTo("counter")'> 
                     <div style="position: relative; right: -8px; bottom: -2px">
                         <span style="color: white">1</span>
                     </div>
@@ -169,38 +148,47 @@
             
     </div>
     <!-- end footer -->
-
+}
 
 @code {
     bool _settingsOpen;
-    bool _isOnIndexPage = true;
+    // = true if has entered at least once
+    bool _isOnHomePage;
     bool _darkEnabledInit;
-    EventHandler<LocationChangedEventArgs> _checkIsOnIndexPage;
+    bool _modeloaded;
+    bool _darkLoaded;
+    EventHandler<LocationChangedEventArgs> _checkHasEnteredHomePage;
 
     protected override void OnInitialized() {
-        _checkIsOnIndexPage = (obj, args) =>
+        _checkHasEnteredHomePage = (obj, args) =>
             {
                 string loc = args.Location;
 
-                _isOnIndexPage = args.Location.EndsWith("home");
+                _isOnHomePage = args.Location.Contains("home");
                 StateHasChanged();
             };
 
-        NavigationManager.LocationChanged += _checkIsOnIndexPage;
+        NavigationManager.LocationChanged += _checkHasEnteredHomePage;
 
     }
 
-    protected override async Task OnInitializedAsync() =>
-       _darkEnabledInit = await JsRuntime.InvokeAsync<bool>("darkMode.get");
+    protected override async Task OnInitializedAsync()
+    {
+        _darkEnabledInit = await JsRuntime.InvokeAsync<bool>("darkMode.get");
+        _modeloaded = true;
+
+        StateHasChanged();
+    }
 
     
 
     protected override async Task OnAfterRenderAsync(bool firstRender) 
     {
-        if (!firstRender)
+        if (_darkLoaded || !_modeloaded)
             return;
 
         await JsRuntime.InvokeVoidAsync("darkMode.initializeFromBlazor"); // now done on Blazor
+        _darkLoaded = true;
     }
             
 
@@ -209,8 +197,7 @@
 
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= _checkIsOnIndexPage;
- 
+        NavigationManager.LocationChanged -= _checkHasEnteredHomePage;
     }
 
 }

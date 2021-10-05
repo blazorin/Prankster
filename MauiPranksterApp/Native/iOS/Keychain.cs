@@ -1,9 +1,9 @@
-﻿using Security;
+﻿/*using Security;
 using Foundation;
 using System;
-
+*/
 namespace MauiPranksterApp.Native.iOS
-{
+{/*
     public static class KeyChain
     {
         public static string ValueForKey(string key, SecRecord record = null)
@@ -74,4 +74,5 @@ namespace MauiPranksterApp.Native.iOS
 
 
     }
+    */
 }

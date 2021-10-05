@@ -30,7 +30,10 @@ namespace MauiPranksterApp
                 .Services.AddBlazorWebView()
 
                 .AddBlazoredLocalStorage()
-                .AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+                .AddOptions()
+                .AddAuthorizationCore()
+                .AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>()
+                .AddScoped<BlazorTransitionableRoute.IRouteTransitionInvoker, BlazorTransitionableRoute.DefaultRouteTransitionInvoker>();
 
 
             return builder.Build();

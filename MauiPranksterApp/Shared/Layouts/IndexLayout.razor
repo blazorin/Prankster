@@ -1,3 +1,11 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager _nav
 
 @Body
+
+@code {
+	protected override void OnInitialized()
+	{
+		_nav.NavigateTo("home");
+	}
+}
