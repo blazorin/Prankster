@@ -12,9 +12,9 @@ namespace Shared.Dto
 	{
 		public Platform LastPlatform { get; set; }
 
-		[CanBeNull] public string DeviceModel { get; set; }
+		 public string DeviceModel { get; set; }
 
-		[CanBeNull] public string OSVersion { get; set; }
+		 public string OSVersion { get; set; }
 
 		public string IPAddress { get; set; }
 	}

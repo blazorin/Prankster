@@ -27,6 +27,7 @@ namespace Model.Data
         protected override void OnModelCreating(ModelBuilder model)
         {
             model.Entity<User>().HasIndex(u => u.Identifier).IsUnique(true);
+
             model.Entity<Call>().HasIndex(c => c.DateRequested).IsUnique(false);
             model.Entity<Transaction>().HasIndex(t => t.Date).IsUnique(false);
             model.Entity<Refer>().HasIndex(r => r.ReferedUserId).IsUnique(true);

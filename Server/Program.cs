@@ -5,12 +5,16 @@ using Microsoft.IdentityModel.Tokens;
 using Server.Secure;
 using Model.Data;
 using Model.Extensions;
+using Microsoft.AspNetCore.Diagnostics;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
 builder.Services.AddRazorPages();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtBearerOptions =>
@@ -64,8 +68,16 @@ app.UseCors(builder =>
 // Ratelimit
 app.UseIpRateLimiting();
 
+// log requests statuses in console
+app.Use(async (context, next) =>
+{
+    await next.Invoke();
+    Console.WriteLine($"{DateTime.Now.Hour} : {DateTime.Now.Minute} : {DateTime.Now.Second} - response: {context.Response.StatusCode}");
+});
+
 // Handles exceptions and generates a custom response body
 app.UseExceptionHandler("/errors/500");
+
 
 // Handles non-success status codes with empty body
 app.UseStatusCodePagesWithReExecute("/errors/{0}");

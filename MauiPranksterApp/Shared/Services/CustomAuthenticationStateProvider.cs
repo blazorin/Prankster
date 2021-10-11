@@ -16,6 +16,7 @@ using Shared.Utils;
 using Microsoft.Maui.Essentials;
 using Shared.ApiErrors;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Text.Json;
 
 namespace MauiPranksterApp.Shared.Services
 {
@@ -23,6 +24,10 @@ namespace MauiPranksterApp.Shared.Services
     {
         private readonly CustomHttpClient _httpClient;
         private readonly ILocalStorageService _localStorage;
+
+        // Since we're changing RouteViews in every page navigation this is a good workaround.
+        // Not discarding a PR should be made about this in the future with a better solution
+        private static AuthenticationState storedAuthState;
 
         public CustomAuthenticationStateProvider(CustomHttpClient httpClient, ILocalStorageService localStorage)
         {
@@ -37,6 +42,9 @@ namespace MauiPranksterApp.Shared.Services
         /// <returns></returns>
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
+            if (storedAuthState is not null)
+                return storedAuthState;
+
             var storedUser = await _localStorage.GetItemAsync<UserData>("user");
 
 
@@ -46,89 +54,66 @@ namespace MauiPranksterApp.Shared.Services
 
                 if (platform == global::Shared.Enums.Platform.iOS)
                 {
-                    //string identifier = KeyChain.ValueForKey("simpleidentifier");
-                    //string pin = KeyChain.ValueForKey("pin");
-                    string identifier = null;
-                    string pin = null;
+                    var (state, userData) = await SendAuthenticationRequest(false);
+                    if (userData is null)
+                        return state;
 
-                    if (!int.TryParse(pin, out int checkedPin))
-                        pin = null;
-
-                    if (!string.IsNullOrEmpty(identifier) && !string.IsNullOrEmpty(pin))
-                    {
-                        var response = await _httpClient.c.PostAsJsonAsync("account/auth", await BuildUserLoginDtoAsync(identifier, checkedPin));
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            if (response.StatusCode == HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotImplemented || response.StatusCode ==HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.RequestTimeout || response.StatusCode == HttpStatusCode.GatewayTimeout)
-                                    throw new Exception("Server not operational");
-
-                            var apiError = await response.Content.ReadFromJsonAsync<ApiError>();
-                            string[] acceptedErrorCodesForReset = { "identifier_unallowed", "auth_account_issue" };
-
-                            if (acceptedErrorCodesForReset.Any(m => m == apiError?.Message))
-                                return AnonymousAuthenticationState();
-
-                            Console.WriteLine(apiError);
-                            throw new Exception("Unexpected issue: Visit pranksterapp.com to get help");
-                        }
-
-                        var fetchedUser = await response.Content.ReadFromJsonAsync<UserData>();
-                        if (fetchedUser == null)
-                            return AnonymousAuthenticationState();
-
-
-                        await SetCurrentUserAsync(fetchedUser);
-                        storedUser = fetchedUser;
-                    }
-                    else
-                        // any new user should call AAS method here
-                        return AnonymousAuthenticationState();
-
+                    storedUser = userData;
                 }
                 else
                     throw new NotImplementedException("Platform not available");
 
             }
 
+            // set token in HttpClient
+            _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", storedUser.Token);
+
             /* 
              * We are gonna check if the token is still valid and save log, if not user will stay in Index (Register)
              * which will try to make auth again with keychain values, if its not there, will be considered as a new signup (finally)
              * user may contact us to see what happened and check if we can give his call ballance back
              */
-           
-            var authCheckResponse = await _httpClient.c.PostAsJsonAsync("account/auth/check", await BuildUserLogDtoAsync());
+
+            var userLog = await BuildUserLogDtoAsync();
+            string serializedUserLog = JsonSerializer.Serialize(userLog);
+
+            var authCheckResponse = await _httpClient.c.PutAsJsonAsync("account/auth/check", serializedUserLog);
             if (!authCheckResponse.IsSuccessStatusCode)
             {
                 if (authCheckResponse.StatusCode == HttpStatusCode.InternalServerError || authCheckResponse.StatusCode == HttpStatusCode.NotImplemented || authCheckResponse.StatusCode == HttpStatusCode.NotFound || authCheckResponse.StatusCode == HttpStatusCode.RequestTimeout || authCheckResponse.StatusCode == HttpStatusCode.GatewayTimeout)
                     throw new Exception("Server not operational");
 
                 var apiError = await authCheckResponse.Content.ReadFromJsonAsync<ApiError>();
-                string[] acceptedErrorCodesForReset = { "unauthorized", "no_permission"};
+                string[] acceptedErrorCodesForReset = { "unauthorized", "no_permission", "auth_check_error" };
 
                 if (acceptedErrorCodesForReset.Any(m => m == apiError?.Message))
 				{
                     await _localStorage.RemoveItemAsync("user");
+                    _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
                     return AnonymousAuthenticationState();
                 }
 
                 Console.WriteLine(apiError);
-                throw new Exception("Unexpected issue: Visit pranksterapp.com to get help");
+                throw new Exception("Unexpected issue: Visit pranksterapp.com to get help. Error code: PA-02");
             }
 
             // If everything went well, user is now authenticated into the app
 
-            _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", storedUser.Token);
-
             // TODO: Para I18N, establecer el lenguaje preferido contenido en UserData
 
-            return CreateAuthState(storedUser);
+            AuthenticationState authState = CreateAuthState(storedUser);
+            storedAuthState = authState;
+
+            return authState;
         }
 
-        public async Task SetCurrentUserAsync(UserData userData)
+        private async Task SetCurrentUserAsync(UserData userData, bool notFromThisClass)
         {
-            var authState = CreateAuthState(userData);
-
-            NotifyAuthenticationStateChanged(Task.FromResult(authState));
+            if (notFromThisClass)
+            {
+                var authState = CreateAuthState(userData);
+                NotifyAuthenticationStateChanged(Task.FromResult(authState));
+            }
 
             await _localStorage.SetItemAsync("user", userData);
             _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", userData.Token);
@@ -165,13 +150,13 @@ namespace MauiPranksterApp.Shared.Services
         }
 
         // We will show him the Register (Index)
-        private AuthenticationState AnonymousAuthenticationState() => new(new ClaimsPrincipal(new ClaimsIdentity()));
+        private static AuthenticationState AnonymousAuthenticationState() => new(new ClaimsPrincipal(new ClaimsIdentity()));
 
 
         private static Task<UserLoginDto> BuildUserLoginDtoAsync(string simpleIdentifier = null, int pin = 0) =>
         Task.FromResult(new UserLoginDto()
         {
-            ComplexIdentifier = (simpleIdentifier == null && pin == 0) ? IdentifierUtils.CreateComplexIdentifier() : null,
+            ComplexIdentifier = (string.IsNullOrEmpty(simpleIdentifier) && pin is 0) ? IdentifierUtils.CreateComplexIdentifier() : null,
             Identifier = simpleIdentifier,
             Pin = pin,
             LastPlatform = global::Shared.Enums.Platform.iOS,
@@ -187,7 +172,57 @@ namespace MauiPranksterApp.Shared.Services
             OSVersion = !string.IsNullOrEmpty(DeviceInfo.VersionString) ? DeviceInfo.VersionString : "1.0"
         });
 
-        private static void SetKeychain(string simpleIdentifier, string pin)
+        public async Task<(AuthenticationState, UserData)> SendAuthenticationRequest(bool canCreate, bool needsNotifyAuthTask = false)
+        {
+            //string identifier = KeyChain.ValueForKey("simpleidentifier");
+            //string pin = KeyChain.ValueForKey("pin");
+            string identifier = null;
+            string pin = null;
+
+            if (!int.TryParse(pin, out int checkedPin))
+                checkedPin = 0;
+
+
+            if ((!string.IsNullOrEmpty(identifier) && !string.IsNullOrEmpty(pin)) || canCreate)
+            {
+                var userlogin = await BuildUserLoginDtoAsync(identifier, checkedPin);
+                string serializedUserLogin = JsonSerializer.Serialize(userlogin);
+
+
+                var response = await _httpClient.c.PostAsJsonAsync("account/auth", serializedUserLogin);
+                if (!response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode == HttpStatusCode.InternalServerError || response.StatusCode == HttpStatusCode.NotImplemented || response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.RequestTimeout || response.StatusCode == HttpStatusCode.GatewayTimeout)
+                        throw new Exception("Server not operational");
+
+                    var apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+                    string[] acceptedErrorCodesForReset = { "identifier_unallowed", "auth_account_issue" };
+
+                    if (acceptedErrorCodesForReset.Any(m => m == apiError?.Message))
+                        return (AnonymousAuthenticationState(), null);
+
+                    Console.WriteLine(apiError);
+                    throw new Exception("Unexpected issue: Visit pranksterapp.com to get help. Error code: PA-01");
+                }
+
+                var fetchedUser = await response.Content.ReadFromJsonAsync<UserData>();
+                if (fetchedUser == null)
+                    return (AnonymousAuthenticationState(), null);
+
+
+                await SetCurrentUserAsync(fetchedUser, needsNotifyAuthTask);
+
+                if (canCreate)
+                SetKeychain(fetchedUser.FinalIdentifier, fetchedUser.Pin.ToString());
+
+                return (CreateAuthState(fetchedUser), fetchedUser);
+            }
+            else
+                // any new user should call AAS method here
+                return (AnonymousAuthenticationState(), null);
+        }
+
+        private void SetKeychain(string simpleIdentifier, string pin)
 		{   /*
             KeyChain.SetValueForKey("simpleidentifier", simpleIdentifier);
             KeyChain.SetValueForKey("pin", pin);

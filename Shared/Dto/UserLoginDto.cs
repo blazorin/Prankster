@@ -11,7 +11,7 @@ namespace Shared.Dto
          * Android -> SIM
          * iOS -> Phone Number
          */
-        public List<string> ComplexIdentifier { get; set; }
+        public IEnumerable<string> ComplexIdentifier { get; set; }
 
         // simpleIdentifier
         public string Identifier { get; set; }

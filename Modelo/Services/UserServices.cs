@@ -55,7 +55,7 @@ namespace Model.Services
                     .FirstOrDefaultAsync();
             }
 
-            if (storedUser == null)
+            if (storedUser is null)
                 return null;
 
             // first Google (Gapi) or Facebook login with this email with the Identifier
@@ -112,7 +112,7 @@ namespace Model.Services
                 new()
                 {
                     DeviceModel = (string.IsNullOrEmpty(newUserDto.DeviceModel) ? "Unknown" : newUserDto.DeviceModel)+
-                    $" OS: {newUserDto.OSVersion}",
+                     $" | OS: {newUserDto.OSVersion}",
                     DeviceId = Guid.NewGuid() + Guid.NewGuid().ToString()
                 }
             };
@@ -173,7 +173,7 @@ namespace Model.Services
             storedUser.DeviceModels.Add(new Device
             {
                 DeviceModel = (string.IsNullOrEmpty(basicUserLog.DeviceModel) ? "Unknown" : basicUserLog.DeviceModel) +
-                $" OS: {basicUserLog.OSVersion}",
+                 $" | OS: {basicUserLog.OSVersion}",
                 DeviceId = Guid.NewGuid() + Guid.NewGuid().ToString()
             });
 

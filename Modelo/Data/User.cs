@@ -18,12 +18,12 @@ namespace Model.Data
 
         // phone number sometimes may be set as SIM
         [Required] public IdentifierType IdentifierType { get; set; }
-        
+
         // 4-digit support pin and is also an additional auth validation code
         [Required] public int Pin { get; set; }
 
 
-        [StringLength(FieldLenghts.User.Mail)] public string Email { get; set; }
+        [StringLength(FieldLenghts.User.Mail)] public string? Email { get; set; }
 
         public List<Device> DeviceModels { get; set; }
         public List<IpAddress> IPAddresses { get; set; }
@@ -35,7 +35,7 @@ namespace Model.Data
         public DateTime LastLogin { get; set; }
 
         [StringLength(FieldLenghts.User.Country)]
-        public string Country { get; set; }
+        public string? Country { get; set; }
 
         public Language Language { get; set; }
 
@@ -49,7 +49,7 @@ namespace Model.Data
 
         // User endpoint
         public bool EndpointCreated { get; set; }
-        public string EndpointUsername { get; set; }
+        public string? EndpointUsername { get; set; }
 
         public List<UserPerms> Perms { get; set; }
         //public List<string> EnabledTokens { get; set; }

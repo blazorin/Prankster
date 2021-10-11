@@ -1,4 +1,5 @@
 ﻿@inherits TransitionableLayoutComponent
+@inject NavigationManager _navManager
 @using Pages
 
 <div class="transition @transitioningClass @(Transition.IntoView ? "transitioned" : "transitioned_behind")">
@@ -21,7 +22,7 @@
 
 @code {
     private string transitioningClass => Transition.FirstRender
-        ? "" : $"animate__{transitioningEffect()} animate__faster animate__animated";
+        ? (_navManager.Uri.EndsWith("/") ? "animate__fadeIn animate__slow animate__animated transitioned" : string.Empty ) : $"animate__{transitioningEffect()} animate__faster animate__animated";
 
     private string transitioningEffect()
     {

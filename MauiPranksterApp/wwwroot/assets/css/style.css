@@ -184,10 +184,9 @@ div.spinner {
     width: 54px;
     height: 54px;
     display: inline-block;
-    top: 50%;
-    left: 50%;
+    top: 81%;
+    left: 74%;
     transform: translate(-50%,-50%);
-    background: #1c1b2a;
     padding: 10px;
     border-radius: 10px;
     -webkit-transform: translate(-50%,-50%);

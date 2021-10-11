@@ -8,7 +8,7 @@
 
   <div class="wrapper dz-mode @SupportDarkMode()">
         <!-- menu -->
-        <div class="menu @(!_isOnHomePage ? "menu-hidden" : string.Empty)">
+        <div class="menu @(_isNotOnHomePage ? "menu-hidden" : string.Empty)">
             <button class="toggle-btn" disabled style="visibility: hidden" />
             <div class="dz-btn-grp">
                 
@@ -117,7 +117,7 @@
      <!-- top-right nav -->
 
         
-            <div class="dz-home dz-home3 dz-home4 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false" style="@(!_isOnHomePage ? (!_darkEnabledInit ? "background: var(--white)" : "background: var(--grey70)") : string.Empty)">
+            <div class="dz-home dz-home3 dz-home4 dz-mode @SupportDarkMode()" @onclick="() => _settingsOpen = false" style="@(_isNotOnHomePage ? (!_darkEnabledInit ? "background: var(--white)" : "background: var(--grey70)") : string.Empty)">
             @Body
             </div>
        
@@ -125,7 +125,7 @@
     <!-- start footer -->
     <div class="dz-footer">
         
-        <div class="dz-tab-bar dz-tab-icon dz-flex-style dz-mode @SupportDarkMode() @(!_isOnHomePage ? "tab-bar-hidden" : string.Empty)" @onclick="() => _settingsOpen = false">
+        <div class="dz-tab-bar dz-tab-icon dz-flex-style dz-mode @SupportDarkMode() @(_isNotOnHomePage ? "tab-bar-hidden" : string.Empty)" @onclick="() => _settingsOpen = false">
                 <button class="dz-bar-btn dz-bar-btn-secondary">
                         <i class="dz-icon-star" style="color: #FAA501"></i>        
                 </button>
@@ -153,18 +153,19 @@
 @code {
     bool _settingsOpen;
     // = true if has entered at least once
-    bool _isOnHomePage;
+    bool _isNotOnHomePage = true;
     bool _darkEnabledInit;
     bool _modeloaded;
     bool _darkLoaded;
     EventHandler<LocationChangedEventArgs> _checkHasEnteredHomePage;
+    string[] _hideTabPages = {"/"};
 
     protected override void OnInitialized() {
         _checkHasEnteredHomePage = (obj, args) =>
             {
                 string loc = args.Location;
 
-                _isOnHomePage = args.Location.Contains("home");
+                _isNotOnHomePage = _hideTabPages.Any(e => loc.EndsWith(e)); // and any other page where settings menu nor tab-bar should not be
                 StateHasChanged();
             };
 

@@ -21,6 +21,7 @@ using Server.Secure;
 using Shared.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Model.Extensions;
+using System.Text.Json;
 
 namespace Server.Controllers
 {
@@ -38,11 +39,22 @@ namespace Server.Controllers
         }
 
         [HttpPost("auth")]
-        public async Task<IActionResult> Login(UserLoginDto credentials)
+        public async Task<IActionResult> Login(JsonElement rawObj)
         {
             /*
              * Previous checks
              */
+            UserLoginDto credentials;
+            try
+            {
+                credentials = JsonSerializer.Deserialize<UserLoginDto>(rawObj.GetString());
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Err deserializing ocurred in account/auth");
+                return Unauthorized(new UnauthorizedError("credentials_data_error"));
+            }
+
 
             #region Login Checks
 
@@ -53,28 +65,28 @@ namespace Server.Controllers
             // sign up attempt
             if (string.IsNullOrEmpty(credentials.Identifier))
             {
-                if (credentials.ComplexIdentifier is null || credentials.ComplexIdentifier.Count != 5 || !char.IsLetter(credentials.ComplexIdentifier[4].Last()))
+                if (credentials.ComplexIdentifier is null || credentials.ComplexIdentifier.Count() != 5 || !char.IsLetter(credentials.ComplexIdentifier.Last().Last()))
                     return Unauthorized(new UnauthorizedError("broken_identifier"));
 
 
-                for (int i = 0; i < credentials.ComplexIdentifier.Count - 1;)
+                for (int i = 0; i < credentials.ComplexIdentifier.Count() - 1;)
                 {
-                    if (!int.TryParse(credentials.ComplexIdentifier[i], out int _))
+                    if (!int.TryParse(credentials.ComplexIdentifier.ElementAt(i), out int _))
                         return Unauthorized(new UnauthorizedError("broken_identifier"));
 
                     i++;
                 }
 
-                for (int i = 0; i < 2;) 
+                for (int i = 0; i < 3;)
                 {
-                    if (!int.TryParse(credentials.ComplexIdentifier[4].ElementAt(i).ToString(), out int _))
+                    if (!int.TryParse(credentials.ComplexIdentifier.Last().ElementAt(i).ToString(), out int _))
                         return Unauthorized(new UnauthorizedError("broken_identifier"));
 
                     i++;
                 }
 
                 // convert to simpleIdentifier
-                credentials.ComplexIdentifier.ForEach(part => credentials.Identifier += part);
+                credentials.ComplexIdentifier.ToList().ForEach(part => credentials.Identifier += part);
 
                 if (await _userServices.IdentifierExistsAsync(credentials.Identifier))
                 {
@@ -83,12 +95,12 @@ namespace Server.Controllers
 
                     identifier.ForEach(part => credentials.Identifier += part);
                 }
-                    
+
 
             }
             else // login attempt
             {
-                if (credentials.Pin is 0)
+                if (credentials.Pin is < 999 or > 9999)
                     return Unauthorized(new UnauthorizedError("broken_identifier"));
 
                 if (!char.IsLetter(credentials.Identifier.Last()))
@@ -110,21 +122,23 @@ namespace Server.Controllers
                 return Unauthorized(new UnauthorizedError("broken_identifier"));
 
 
-            IActionResult? checkLogResult = CheckUserLog(credentials);
+            IActionResult? checkLogResult = CheckUserLog(credentials, out string ip);
 
             if (checkLogResult is not null)
                 return checkLogResult;
+
+            // set IP Address
+            credentials.IPAddress = ip;
 
             if (!string.IsNullOrEmpty(credentials.Email))
                 return Unauthorized(new UnauthorizedError("not_oauth_login_method"));
 
             if (!await _userServices.IdentifierExistsAsync(credentials.Identifier))
                 return isLogin ? Unauthorized(new UnauthorizedError("identifier_unallowed")) : await Register(credentials);
-            
-         
+
+
             if (await _userServices.IsBannedAsync(credentials.Identifier))
                 return Unauthorized(new UnauthorizedError("user_violated_tos"));
-
 
             var user = await _userServices.GetUserByAuthenticationAsync(credentials, UserLogType.Login);
             if (user == null)
@@ -164,7 +178,7 @@ namespace Server.Controllers
 
             var emailExists = await _userServices.EmailExistsAsync(request.Email);
 
-            if (!emailExists && (string.IsNullOrEmpty(request.Identifier) || request.Pin == 0 || 
+            if (!emailExists && (string.IsNullOrEmpty(request.Identifier) || request.Pin == 0 ||
                 !await _userServices.IdentifierExistsAsync(request.Identifier)))
                 return Unauthorized(new UnauthorizedError("google_needs_identifier"));
 
@@ -195,41 +209,54 @@ namespace Server.Controllers
 
         [Authorize]
         [HttpPut("auth/check")]
-        public async Task<IActionResult> AuthCheck(BasicUserLogDto basicUserLog)
+        public async Task<IActionResult> AuthCheck(JsonElement rawObj)
         {
-            IActionResult? checkLogResult = CheckUserLog(basicUserLog);
+            BasicUserLogDto basicUserLog;
+            try
+            {
+                basicUserLog = JsonSerializer.Deserialize<BasicUserLogDto>(rawObj.GetString());
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Err deserializing ocurred in account/auth/check");
+                return Unauthorized(new UnauthorizedError("check_data_error"));
+            }
+
+            IActionResult? checkLogResult = CheckUserLog(basicUserLog, out string ip);
 
             if (checkLogResult is not null)
                 return checkLogResult;
 
             string id = User.GetId();
+            basicUserLog.IPAddress = ip;
             bool result = await _userServices.HandleAuthCheckAsync(id, basicUserLog);
 
             return result is true ? Ok() : Conflict(new ConflictError("auth_check_error"));
         }
 
-        private IActionResult? CheckUserLog(BasicUserLogDto basicUserLog)
-		{
+        private IActionResult? CheckUserLog(BasicUserLogDto basicUserLog, out string ip)
+        {
+            ip = string.Empty;
+
             if (basicUserLog.LastPlatform is Platform.Missing)
                 return Unauthorized(new UnauthorizedError("no_platform_provided"));
             if (basicUserLog.LastPlatform is Platform.Android)
                 return Unauthorized(new UnauthorizedError("unsupported_platform"));
 
-            if (string.IsNullOrWhiteSpace(basicUserLog.OSVersion) || basicUserLog.OSVersion.Length > 15)
+            if (string.IsNullOrWhiteSpace(basicUserLog.OSVersion) || basicUserLog.OSVersion.Length > 50)
                 return Unauthorized(new UnauthorizedError("invalid_os"));
-           
 
-            // get IP from Cloudflare header
-            string? ipHeader = HttpContext?.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
-
-            if (!IPAddress.TryParse(ipHeader, out var ip))
-                return Unauthorized(new UnauthorizedError("ip_address_invalid"));
-
-            basicUserLog.IPAddress = ip.ToString();
 
             if (!string.IsNullOrEmpty(basicUserLog.DeviceModel) && basicUserLog.DeviceModel.Length > 40)
                 return Unauthorized(new UnauthorizedError("device_model_error"));
 
+            // get IP from Cloudflare header
+            string? ipHeader = HttpContext?.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
+
+            if (!IPAddress.TryParse(ipHeader, out var parsedIp))
+                return Unauthorized(new UnauthorizedError("ip_address_invalid"));
+
+            ip = parsedIp.ToString();
             return null;
         }
 
