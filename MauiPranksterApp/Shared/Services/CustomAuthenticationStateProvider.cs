@@ -67,9 +67,7 @@ namespace MauiPranksterApp.Shared.Services
 
             // set token in HttpClient
 
-            var authHeader = new AuthenticationHeaderValue("bearer", storedUser.Token);
-            _httpClient.c.DefaultRequestHeaders.Authorization = authHeader;
-            CustomHttpClient.TokenHeader = authHeader;
+            SetToken(storedUser.Token);
 
             /* 
              * We are gonna check if the token is still valid and save log, if not user will stay in Index (Register)
@@ -92,8 +90,8 @@ namespace MauiPranksterApp.Shared.Services
                 if (acceptedErrorCodesForReset.Any(m => m == apiError?.Message))
 				{
                     await _localStorage.RemoveItemAsync("user");
-                    _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
-                    CustomHttpClient.TokenHeader = null;
+                    RemoveToken();
+
                     return AnonymousAuthenticationState();
                 }
 
@@ -120,10 +118,7 @@ namespace MauiPranksterApp.Shared.Services
             }
 
             await _localStorage.SetItemAsync("user", userData);
-
-            var authHeader = new AuthenticationHeaderValue("bearer", userData.Token);
-            _httpClient.c.DefaultRequestHeaders.Authorization = authHeader;
-            CustomHttpClient.TokenHeader = authHeader;
+            SetToken(userData.Token);
         }
 
         public async Task ClearCurrentUserAsync()
@@ -133,8 +128,7 @@ namespace MauiPranksterApp.Shared.Services
             NotifyAuthenticationStateChanged(authStateTask);
 
             await _localStorage.RemoveItemAsync("user");
-            _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
-            CustomHttpClient.TokenHeader = null;
+            RemoveToken();
         }
 
         private static AuthenticationState CreateAuthState(UserData userData)
@@ -230,13 +224,25 @@ namespace MauiPranksterApp.Shared.Services
                 return (AnonymousAuthenticationState(), null);
         }
 
-        private void SetKeychain(string simpleIdentifier, string pin)
+        private void SetToken(string token)
+        {
+            var authHeader = new AuthenticationHeaderValue("bearer", token);
+            _httpClient.c.DefaultRequestHeaders.Authorization = authHeader;
+            CustomHttpClient.TokenHeader = authHeader;
+        }
+
+        private void RemoveToken()
+        {
+            _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
+            CustomHttpClient.TokenHeader = null;
+        }
+
+        private static void SetKeychain(string simpleIdentifier, string pin)
 		{   /*
             KeyChain.SetValueForKey("simpleidentifier", simpleIdentifier);
             KeyChain.SetValueForKey("pin", pin);
             */
 		}
-
  
     }
 }
