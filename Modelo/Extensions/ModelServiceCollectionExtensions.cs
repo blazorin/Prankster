@@ -16,6 +16,7 @@ namespace Model.Extensions
 
             //User
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IPrankServices, PrankServices>();
             services.AddScoped<IProfileServices, ProfileServices>();
 
             // Bitsbi httpClient

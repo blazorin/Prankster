@@ -66,7 +66,10 @@ namespace MauiPranksterApp.Shared.Services
             }
 
             // set token in HttpClient
-            _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", storedUser.Token);
+
+            var authHeader = new AuthenticationHeaderValue("bearer", storedUser.Token);
+            _httpClient.c.DefaultRequestHeaders.Authorization = authHeader;
+            CustomHttpClient.TokenHeader = authHeader;
 
             /* 
              * We are gonna check if the token is still valid and save log, if not user will stay in Index (Register)
@@ -90,6 +93,7 @@ namespace MauiPranksterApp.Shared.Services
 				{
                     await _localStorage.RemoveItemAsync("user");
                     _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
+                    CustomHttpClient.TokenHeader = null;
                     return AnonymousAuthenticationState();
                 }
 
@@ -116,7 +120,10 @@ namespace MauiPranksterApp.Shared.Services
             }
 
             await _localStorage.SetItemAsync("user", userData);
-            _httpClient.c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", userData.Token);
+
+            var authHeader = new AuthenticationHeaderValue("bearer", userData.Token);
+            _httpClient.c.DefaultRequestHeaders.Authorization = authHeader;
+            CustomHttpClient.TokenHeader = authHeader;
         }
 
         public async Task ClearCurrentUserAsync()
@@ -127,6 +134,7 @@ namespace MauiPranksterApp.Shared.Services
 
             await _localStorage.RemoveItemAsync("user");
             _httpClient.c.DefaultRequestHeaders.Remove("Authorization");
+            CustomHttpClient.TokenHeader = null;
         }
 
         private static AuthenticationState CreateAuthState(UserData userData)

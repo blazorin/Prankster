@@ -1,5 +1,6 @@
 ﻿@page "/home"
 @inject IJSRuntime JsRuntime
+@inject CustomHttpClient HttpClient
 @implements IAsyncDisposable
 
     <!-- Home -->
@@ -144,7 +145,8 @@
         </div>
 
 @code {
-
+    IEnumerable<PrankDto> _trendingPranks;
+    IEnumerable<PrankDto> _latestPranks;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
 
@@ -157,9 +159,27 @@
         // TODO: Check if user is on Ipad for bigger loading skeleton at swiper (mainly apply 2x Height)
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await HttpClient.c.GetAsync("pranks/fetch");
+        if (!response.IsSuccessStatusCode)
+        {
+            var apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+            string errorMessage = apiError?.Message;
+
+            return;
+        }
+
+        var homePranksObj = await response.Content.ReadFromJsonAsync<HomePranksDto>();
+        if (homePranksObj.Trending is null || homePranksObj.Latest is null)
+            return;
+
+        _trendingPranks = homePranksObj.Trending;
+        _latestPranks = homePranksObj.Latest;
+
+    }
+
     public async ValueTask DisposeAsync() =>
         await JsRuntime.InvokeVoidAsync("reloadJsDefer", "./assets/js/script.js", false);
 
-        
-    
 }
