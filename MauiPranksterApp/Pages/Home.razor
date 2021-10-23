@@ -1,10 +1,10 @@
 ﻿@page "/home"
-@using Components.Swiper
 @inject IJSRuntime JsRuntime
 @inject CustomHttpClient HttpClient
 @implements IAsyncDisposable
 
     <!-- Home -->
+
         <div class="dz-appbar" style='background-image: url("assets/images/home/banner.jpg"); background-size: cover; background-repeat: no-repeat; background-position: center center'>
             <div class="dz-overlay">
                 <div class="dz-btn-grp dz-flex-style" style="padding-left: 203px; visibility: hidden">
@@ -44,19 +44,21 @@
                 <!-- slider 1 -->
                 <div class="dz-slider-part dz-near swiper-container">
                     <div class="swiper-wrapper">
-
-                        @* swiper-slide is modified by swiper.js and we can not modify it so I've made this workaround *@
                         <div class="dz-item swiper-slide">
-                             @GetTrendingElement()
+                            <div class="dz-img items">
+                                <div class="skeleton__content skeleton__loading" style="min-height: 200px;"> @* TODO: Custom swiper skeleton height *@
+                                    <div class="skeleton__headline skeleton__placeholder">
+	                                </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="dz-item swiper-slide">
-                            @GetTrendingElement(1)
-                        </div>
-                         <div class="dz-item swiper-slide">
-                            @GetTrendingElement(2)
-                        </div>
-                         <div class="dz-item swiper-slide">
-                            @GetTrendingElement(3)
+                            <div class="dz-img items">
+                                <div class="skeleton__content skeleton__loading" style="min-height: 200px;">
+                                    <div class="skeleton__headline skeleton__placeholder">
+	                                </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -145,7 +147,6 @@
 @code {
     IEnumerable<PrankDto> _trendingPranks;
     IEnumerable<PrankDto> _latestPranks;
-    bool _isFetchingPranks;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
 
@@ -160,65 +161,25 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _isFetchingPranks = true;
-        await Task.Delay(500);
-
         var response = await HttpClient.c.GetAsync("pranks/fetch");
         if (!response.IsSuccessStatusCode)
         {
             var apiError = await response.Content.ReadFromJsonAsync<ApiError>();
             string errorMessage = apiError?.Message;
-            //todo
 
             return;
         }
 
         var homePranksObj = await response.Content.ReadFromJsonAsync<HomePranksDto>();
         if (homePranksObj.Trending is null || homePranksObj.Latest is null)
-        {
-            _isFetchingPranks = true;
-            // maybe show error
             return;
-        }
 
         _trendingPranks = homePranksObj.Trending;
         _latestPranks = homePranksObj.Latest;
 
-        // preload images into link tag
-
-        IEnumerable<string> trendingImageNames = _trendingPranks.Select(p => p.ImageName);
-        IEnumerable<string> latestImageNames = _latestPranks.Select(p => p.ImageName);
-
-        string[] imageNames = {};
-        imageNames = trendingImageNames.Concat(latestImageNames).ToArray();
-
-        await JsRuntime.InvokeVoidAsync("preloadImages", (object) imageNames);
-
-        await Task.Delay(2000);
-        _isFetchingPranks = false;
     }
 
     public async ValueTask DisposeAsync() =>
         await JsRuntime.InvokeVoidAsync("reloadJsDefer", "./assets/js/script.js", false);
-
-    private RenderFragment GetTrendingElement(int elementIndex = 0)
-    {
-        if (_isFetchingPranks)
-            return b =>
-            {
-                b.OpenComponent<SkeletonTrendingElement>(1);
-                b.CloseComponent();
-            };
-
-        return b =>
-        {
-            b.OpenComponent<TrendingElement>(1);
-            b.AddAttribute(2, "Name", _trendingPranks.ElementAt(elementIndex).Name);
-            b.AddAttribute(3, "Description", _trendingPranks.ElementAt(elementIndex).Description);
-            b.AddAttribute(4, "Premium", _trendingPranks.ElementAt(elementIndex).Premium);
-            b.AddAttribute(5, "ImageName", _trendingPranks.ElementAt(elementIndex).ImageName);
-            b.CloseComponent();
-        };
-    }
 
 }

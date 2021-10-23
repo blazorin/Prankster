@@ -15,7 +15,6 @@ namespace Model.Data
         [Required] public bool OnlyAdmin { get; set; } = false;
         [Required] public bool Enabled { get; set; } = true;
         [Required] public string AudioFileName { get; set; }
-        [Required] public string ImageName { get; set; } // with extension ex: .png, .jpg
         [Required] public Language Language { get; set; }
         public float Popularity { get; set; }
         [Required] public DateTime DateAdded { get; set; }
