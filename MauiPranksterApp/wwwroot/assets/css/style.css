@@ -2188,7 +2188,7 @@ body{
     z-index: 10;
 }
 .skeleton__content {
-    padding: 1rem;
+    /*padding: 1rem; title and description is now placed below */
     background-color: #f2f4f5;
     border-radius: 4px;
     border-radius: 13px;

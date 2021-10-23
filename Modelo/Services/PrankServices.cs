@@ -25,6 +25,7 @@ namespace Model.Services
         public async Task<IEnumerable<PrankDto>> GetLatestPranks()
         {
             var result = await _ctx.Pranks
+                .Where(p => p.Enabled)
                 .OrderByDescending(r => r.DateAdded)
                 .ProjectTo<PrankDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
@@ -35,6 +36,7 @@ namespace Model.Services
         public async Task<IEnumerable<PrankDto>> GetTrendingPranks()
         {
             var result = await _ctx.Pranks
+                .Where(p => p.Enabled)
                 .OrderByDescending(r => r.Popularity)
                 .ProjectTo<PrankDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
