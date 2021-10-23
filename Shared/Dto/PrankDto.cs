@@ -11,5 +11,6 @@ namespace Shared.Dto
         public bool Premium { get; set; }
         public Language Language { get; set; }
         public float Popularity { get; set; }
+        public string ImageName { get; set; }
     }
 }

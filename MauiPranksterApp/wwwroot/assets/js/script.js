@@ -107,9 +107,10 @@ $(function(){
         slidesPerView: 2,
         spaceBetween: 10,
         observer: true,
-      observeParents: true,
-      loop: true,
-      centeredSlides: false,
+        observeParents: true,
+        loop: false,
+        centeredSlides: false,
+        lazyLoading: true,
       breakpoints: {
           1920: {
             slidesPerView: 2,
