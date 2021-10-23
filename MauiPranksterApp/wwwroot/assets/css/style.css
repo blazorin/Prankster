@@ -1105,7 +1105,7 @@ div.spinner {
     font-family: SFProBold;
 }
 .dz-home .dz-title button,
-.dz-home .dz-title a{
+.dz-home .dz-title a {
     display: inline-block;
     color: var(--blue);
     font-size: 13px;
@@ -1115,7 +1115,16 @@ div.spinner {
     display: flex;
     align-items: center;
     text-transform: capitalize;
+    border-radius: 99px;
+    line-height: 30px;
+    border: 1px solid var(--grey10);
+    padding: 0 12px;
 }
+
+.dz-home.dz-dark-mode .dz-title a {
+    color: var(--grey10);
+}
+
 .dz-home .dz-title button i,
 .dz-home .dz-title a i{
     margin-left: 6px;
@@ -1595,11 +1604,24 @@ div.spinner {
     bottom: 9px;
 }
 .dz-home3 .dz-home-content .dz-list li .dz-text{
-    display: flex;
+    /*display: flex;*/
     flex-wrap: wrap;
     align-content: space-between;
     width: calc(100% - 100px);
 }
+
+.dz-home3 .dz-home-content .dz-list .dz-text p {
+    font-size: 15px;
+    line-height: 18px;
+    font-family: SFProReg;
+    color: var(--grey60);
+    margin-top: 5px;
+}
+
+.dz-home3.dz-dark-mode .dz-home-content .dz-list .dz-text p {
+    color: var(--grey40);
+}
+
 .dz-home3 .dz-home-content .dz-list li a{
     display: block;
     font-size: 17px;

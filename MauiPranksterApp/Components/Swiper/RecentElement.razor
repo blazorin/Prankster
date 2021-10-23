@@ -1,0 +1,22 @@
+﻿<li>
+   <div class="dz-img">
+       <img src="@(@Main.PranksterCDN + $"img/{ImageName}")" alt="@Name">
+   </div>
+   <div class="dz-text">
+      <a style="margin-left: 5px">@Name</a>
+      <p style="margin-left: 5px">@Description</p>
+   </div>
+</li>
+@code {
+    [Parameter]
+    public string ImageName { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Description { get; set; }
+
+    [Parameter]
+    public bool Premium { get; set; }
+}

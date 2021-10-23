@@ -36,7 +36,7 @@
             <div class="dz-trend">
                 <div class="dz-title dz-flex-style">
                     <h2>Trending 🔥</h2>
-                    <a href="#!">
+                    <a href="">
                         view more
                         <i class="dz-icon-arrow-round-forward"></i>                          
                     </a>
@@ -47,97 +47,36 @@
 
                         @* swiper-slide is modified by swiper.js and we can not modify it so I've made this workaround *@
                         <div class="dz-item swiper-slide">
-                             @GetTrendingElement()
+                             @(GetTrendingElement<SkeletonTrendingElement, TrendingElement>())
                         </div>
                         <div class="dz-item swiper-slide">
-                            @GetTrendingElement(1)
+                             @(GetTrendingElement<SkeletonTrendingElement, TrendingElement>(1))
                         </div>
                          <div class="dz-item swiper-slide">
-                            @GetTrendingElement(2)
+                             @(GetTrendingElement<SkeletonTrendingElement, TrendingElement>(2))
                         </div>
                          <div class="dz-item swiper-slide">
-                            @GetTrendingElement(3)
+                             @(GetTrendingElement<SkeletonTrendingElement, TrendingElement>(3))
                         </div>
                     </div>
                 </div>
             </div>
             <div class="dz-title dz-flex-style dz-browse">
                 <h2>New Pranks</h2>
-                <button>
+                <a href="">
                     view all
                     <i class="dz-icon-arrow-forward"></i>                        
-                </button>
+                </a>
             </div>
             <!-- list -->
             <ul class="dz-list">
-                <li>
-                    <div class="dz-img">
-                        <img src="assets/images/home/item8.jpg" alt="">
-                        <div class="dz-overlay">
-                            <p>156 👍</p>
-                        </div>
-                    </div>
-                    <div class="dz-text">
-                        <a href="#!">Most Common Rule In Most Of The Eateries In NY</a>
-                        <div class="dz-bottom-text dz-indigo">
-                            <div class="dz-icon-sm">
-                                <i class="dz-icon-restaurant"></i>
-                            </div>
-                            <p>Bistros & Dinners <span>· 15 mins</span></p>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="dz-img">
-                        <img src="assets/images/home/item6.jpg" alt="">
-                        <div class="dz-overlay">
-                            <p>156 👍</p>
-                        </div>
-                    </div>
-                    <div class="dz-text">
-                        <a href="#!">I Voted Yesterday And Today I Don’t Give A Ship...</a>
-                        <div class="dz-bottom-text dz-pink">
-                            <div class="dz-icon-sm">
-                                <i class="dz-icon-car"></i>
-                            </div>
-                            <p>transportation <span>· 6 mins</span></p>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="dz-img">
-                        <img src="assets/images/home/item7.jpg" alt="">
-                        <div class="dz-overlay">
-                            <p>156 👍</p>
-                        </div>
-                    </div>
-                    <div class="dz-text">
-                        <a href="#!">Powerful Movement From a Crowd of People You Could Never Expect Anything</a>
-                        <div class="dz-bottom-text dz-teal">
-                            <div class="dz-icon-sm">
-                                <i class="dz-icon-bowtie"></i>
-                            </div>
-                            <p>People & Society <span>· 8 mins</span></p>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="dz-img">
-                        <img src="assets/images/home/item8.jpg" alt="">
-                        <div class="dz-overlay">
-                            <p>156 👍</p>
-                        </div>
-                    </div>
-                    <div class="dz-text">
-                        <a href="#!">The Incredible Motorcycle Journey over USA in 1954</a>
-                        <div class="dz-bottom-text dz-orange">
-                            <div class="dz-icon-sm">
-                                <i class="dz-icon-airplane"></i>
-                            </div>
-                            <p>Travel Stories <span>· 15 mins</span></p>
-                        </div>
-                    </div>
-                </li>
+                @(GetTrendingElement<SkeletonRecentElement, RecentElement>())
+
+                @(GetTrendingElement<SkeletonRecentElement, RecentElement>(1))
+
+                @(GetTrendingElement<SkeletonRecentElement, RecentElement>(2))
+
+                @(GetTrendingElement<SkeletonRecentElement, RecentElement>(3))
             </ul>
             
         </div>
@@ -201,22 +140,24 @@
     public async ValueTask DisposeAsync() =>
         await JsRuntime.InvokeVoidAsync("reloadJsDefer", "./assets/js/script.js", false);
 
-    private RenderFragment GetTrendingElement(int elementIndex = 0)
+    private RenderFragment GetTrendingElement<TSkeleton, TElement>(int elementIndex = 0) where TSkeleton : IComponent where TElement : IComponent
     {
         if (_isFetchingPranks)
             return b =>
             {
-                b.OpenComponent<SkeletonTrendingElement>(1);
+                b.OpenComponent<TSkeleton>(1);
                 b.CloseComponent();
             };
 
         return b =>
         {
-            b.OpenComponent<TrendingElement>(1);
-            b.AddAttribute(2, "Name", _trendingPranks.ElementAt(elementIndex).Name);
-            b.AddAttribute(3, "Description", _trendingPranks.ElementAt(elementIndex).Description);
-            b.AddAttribute(4, "Premium", _trendingPranks.ElementAt(elementIndex).Premium);
-            b.AddAttribute(5, "ImageName", _trendingPranks.ElementAt(elementIndex).ImageName);
+            IEnumerable<PrankDto> sourceList = typeof(TElement) == typeof(TrendingElement) ? _trendingPranks : _latestPranks;
+
+            b.OpenComponent<TElement>(1);
+            b.AddAttribute(2, "Name", sourceList.ElementAt(elementIndex).Name);
+            b.AddAttribute(3, "Description", sourceList.ElementAt(elementIndex).Description);
+            b.AddAttribute(4, "Premium", sourceList.ElementAt(elementIndex).Premium);
+            b.AddAttribute(5, "ImageName", sourceList.ElementAt(elementIndex).ImageName);
             b.CloseComponent();
         };
     }
