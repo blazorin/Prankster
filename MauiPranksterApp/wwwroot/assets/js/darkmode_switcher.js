@@ -114,8 +114,24 @@ function setOverscrollBackground() {
     dom.setAttributeNode(attribute);
 }
 
+async function checkIfExceptionOcurred() {
+
+    while (!(document.getElementById('blazor-error-ui').style.display == "block")) {
+        await delay(100);
+    }
+
+    document.getElementById("approot").remove();
+}
+
+function delay(t) {
+    return new Promise(resolve => setTimeout(resolve, t));
+}
+
 $(function () {
     "use strict";
 
     setOverscrollBackground();
+
+    // fire and forget
+    checkIfExceptionOcurred();
 });

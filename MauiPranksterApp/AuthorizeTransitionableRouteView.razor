@@ -1,7 +1,11 @@
 ﻿@if (Transition?.RouteData != null)
 {
     <CascadingValue Value="Transition">
-        <AuthorizeRouteView RouteData="@Transition.RouteData" DefaultLayout="@DefaultLayout"></AuthorizeRouteView>
+        <AuthorizeRouteView RouteData="@Transition.RouteData" DefaultLayout="@DefaultLayout">
+            <Authorizing>
+                <p></p>
+            </Authorizing>
+        </AuthorizeRouteView>
     </CascadingValue>
 }
 

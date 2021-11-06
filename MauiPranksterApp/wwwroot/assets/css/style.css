@@ -2488,3 +2488,246 @@ body{
     -webkit-transform: translate3d(-100vw, 0, 0);
     transform: translate3d(-100vw, 0, 0);
 }
+
+/*===============================================
+ states css 
+================================================*/
+.dz-state {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.dz-state .dz-state-icon {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: -10px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.dz-state .dz-break {
+    position: relative;
+    padding-bottom: 40px;
+}
+
+.dz-state span {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--grey70);
+    line-height: 20px;
+    width: 40px;
+    border-radius: 99px;
+    background: var(--white);
+    text-transform: uppercase;
+    font-family: SFProReg;
+}
+
+.dz-state .dz-break:after,
+.dz-state .dz-break:before {
+    height: 1px;
+    width: 44%;
+    position: absolute;
+    content: '';
+    background: var(--grey10);
+    top: 10px;
+}
+
+.dz-state .dz-break:before {
+    left: 0;
+}
+
+.dz-state .dz-break:after {
+    right: 0;
+}
+
+.dz-state-bg .dz-state-icon {
+    height: 92px;
+    width: 92px;
+    border-radius: 24px;
+    background: var(--grey10);
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+}
+
+.dz-state-bg .dz-state-icon {
+    padding-top: 10px;
+}
+
+.dz-big .dz-state-icon {
+    height: 64px;
+    width: 64px;
+    margin-bottom: 20px;
+}
+
+    .dz-big .dz-state-icon.dz-rad-16 {
+        border-radius: 16px;
+    }
+
+    .dz-big .dz-state-icon.dz-rad-50 {
+        border-radius: 50%;
+    }
+
+.dz-sm-bg .dz-state-icon {
+    height: 92px;
+    width: 92px;
+    border-radius: 24px;
+    background: var(--grey0);
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+}
+
+.dz-sm-bg .dz-state-icon {
+    padding-top: 10px;
+}
+
+.dz-state h3 {
+    color: var(--grey70);
+    font-size: 17px;
+    line-height: 22px;
+    font-family: SFProSemiBold;
+    font-weight: normal;
+}
+
+    .dz-state h3.grey {
+        color: var(--grey60);
+    }
+
+.dz-state-bg h3 {
+    color: var(--grey40);
+}
+
+.dz-big h3 {
+    font-size: 34px;
+    line-height: 41px;
+    font-family: SFProBold;
+}
+
+.dz-state p {
+    color: var(--grey40);
+    font-size: 13px;
+    line-height: 18px;
+    font-family: SFProReg;
+}
+
+.dz-big p {
+    font-size: 17px;
+    line-height: 22px;
+    color: var(--grey50);
+    width: 100%;
+}
+/* create */
+.dz-create .dz-state-icon {
+    background: var(--blue);
+}
+
+    .dz-create .dz-state-icon i {
+        color: var(--white);
+        font-size: 20px;
+        line-height: 64px;
+    }
+/* start */
+
+.dz-start .dz-state-icon {
+    background: var(--pink);
+    box-shadow: 0 4px 4px 0 hsla(349, 100%, 59%, 0.12);
+}
+
+    .dz-start .dz-state-icon i {
+        color: var(--white);
+        font-size: 30px;
+        line-height: 64px;
+    }
+
+/* delete */
+
+.dz-delete .dz-state-icon {
+    background: hsla(3, 100%, 59%, 0.2);
+}
+
+    .dz-delete .dz-state-icon i {
+        color: var(--pink);
+        font-size: 30px;
+        line-height: 64px;
+    }
+
+.dz-delete p {
+    color: var(--red);
+}
+/* call */
+
+.dz-call .dz-state-icon {
+    background: var(--gradient-primary);
+    box-shadow: 0 4px 4px 0 hsla(211, 100%, 50%, 0.12);
+}
+
+    .dz-call .dz-state-icon i {
+        color: var(--white);
+        font-size: 30px;
+        line-height: 64px;
+    }
+/* shopping */
+
+.dz-shop .dz-state-icon {
+    background: var(--green);
+    box-shadow: 0 4px 4px 0 hsl(154, 41%, 63%,0.24);
+    padding-top: 5px;
+    position: relative;
+}
+
+    .dz-shop .dz-state-icon i {
+        color: var(--white);
+        font-size: 30px;
+        line-height: 64px;
+    }
+
+.dz-shop p span {
+    font-family: SFProBold;
+}
+
+.dz-shop .dz-state-icon .dz-bar {
+    width: 30px;
+    background: var(--white);
+    height: 2px;
+    box-shadow: 0 2px 2px 0 hsl(240, 17%, 24%,0.06);
+    position: absolute;
+    border-radius: 6px;
+}
+
+.dz-shop .dz-state-icon .dz-bar-one {
+    left: -16px;
+    top: 22px;
+}
+
+.dz-shop .dz-state-icon .dz-bar-two {
+    left: -23px;
+    top: 30px;
+}
+
+.dz-shop .dz-state-icon .dz-bar-three {
+    left: -16px;
+    top: 38px;
+}
+
+/* blocked */
+.dz-block-sm .dz-state-icon {
+    text-align: center;
+    height: 92px;
+    width: 92px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    background: var(--grey0);
+    margin-bottom: 10px;
+}
+
+/*===============================================
+ states dark mode css 
+================================================*/
+.dz-dark-mode .dz-state h3,
+.dz-dark-mode .dz-state h3.grey {
+    color: var(--white);
+}

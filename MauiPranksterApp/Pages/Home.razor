@@ -26,7 +26,7 @@
             <div class="dz-card dz-flex-style">
                 <div class="dz-text">
                     <p>🎉 Prankster Ya Está Aquí</p>
-                    <h3>Ha llegado <span>la nueva era</span> de las bromas telefónicas. No pares de reír con los descuentos de lanzamiento</h3>
+                    <h3 @onclick="@(() => throw new Exception())">Ha llegado <span>la nueva era</span> de las bromas telefónicas. No pares de reír con los descuentos de lanzamiento</h3>
                     @*Add different messages when user haves free calls*@
                 </div>
                 <div class="dz-big-icon">
@@ -45,7 +45,7 @@
                 <div class="dz-slider-part dz-near swiper-container">
                     <div class="swiper-wrapper">
 
-                        @* swiper-slide is modified by swiper.js and we can not modify it so I've made this workaround *@
+                        @* initial swiper-slides boxes *@
                         <div class="dz-item swiper-slide">
                              @(GetTrendingElement<SkeletonTrendingElement, TrendingElement>())
                         </div>
@@ -58,6 +58,9 @@
                          <div class="dz-item swiper-slide">
                              @(GetTrendingElement<SkeletonTrendingElement, TrendingElement>(3))
                         </div>
+
+                        @* loaded after *@
+
                     </div>
                 </div>
             </div>
@@ -100,7 +103,6 @@
     protected override async Task OnInitializedAsync()
     {
         _isFetchingPranks = true;
-        await Task.Delay(500);
 
         var response = await HttpClient.c.GetAsync("pranks/fetch");
         if (!response.IsSuccessStatusCode)
@@ -135,6 +137,7 @@
 
         await Task.Delay(2000);
         _isFetchingPranks = false;
+
     }
 
     public async ValueTask DisposeAsync() =>

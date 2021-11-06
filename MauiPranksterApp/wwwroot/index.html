@@ -18,12 +18,58 @@
 
 <body>
 
-    <app></app>
+    <app id="approot"></app>
+
+    <!-- TODO: Add links and open them with native interop. js->c#->maui-->
 
     <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+        <div class="dz-all">
+            <div class="dz-container">
+                <div class="dz-hline">
+
+                    <!-- no-connection -->
+                    <div class="dz-vline" data-display="12" style="mix-blend-mode: difference">
+                        <div class="dz-state dz-block-sm">
+                            <div>
+                                <img src="assets/images/signal-sm.svg" class="svg" alt="" style="height: 150px">
+                            </div>
+                            <h3 style="font-size: 43px; line-height: 41px; font-family: SFProBold; color: var(--grey0)">
+                                No connection
+                            </h3>
+                            <p style="font-size: 20px; margin-top: 15px">Lost connection to the server</p>
+                        </div>
+                    </div>
+                    <!-- twitter -->
+                    <div class="dz-vline" data-display="12" style="flex: 0 0 calc(100%); width: calc(100%);">
+                        <div class="dz-state dz-shop dz-big">
+                            <div class="dz-break">
+                                <span>or</span>
+                            </div>
+                            <button class="dz-state-icon dz-rad-50" style="background: var(--teal)">
+                                <i class="dz-icon-twitter"></i>
+                                <span class="dz-bar dz-bar-one"></span>
+                                <span class="dz-bar dz-bar-two"></span>
+                                <span class="dz-bar dz-bar-three"></span>
+                            </button>
+                            <h3 style="color: var(--grey0); mix-blend-mode: difference">Twitter</h3>
+                            <p>Follow @PranksterPhone on Twitter for status updates</p>
+                        </div>
+                    </div>
+
+                    <!-- discord -->
+                    <div class="dz-vline" data-display="12" style="flex: 0 0 calc(100%); width: calc(100%);">
+                        <div class="dz-state dz-start dz-big">
+                            <button class="dz-state-icon dz-rad-50" style="background: #5661EA">
+                                <img src="assets/images/discord_white.png" />
+                            </button>
+                            <h3 style="color: var(--grey0); mix-blend-mode: difference">Discord</h3>
+                            <p>Join our Discord community and get help immediately</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
