@@ -19,7 +19,7 @@ namespace Model.Services
 
         Task<bool> IsBannedAsync(string identifier);
 
-        Task<bool> HandleAuthCheckAsync(string userId = "", BasicUserLogDto basicUserLog);
+        Task<bool> HandleAuthCheckAsync(string userId, BasicUserLogDto basicUserLog);
 
         /*
         Task<bool> UsernameExistsAsync(string username);

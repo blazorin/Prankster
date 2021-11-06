@@ -117,7 +117,7 @@ function setOverscrollBackground() {
 async function checkIfExceptionOcurred() {
 
     while (!(document.getElementById('blazor-error-ui').style.display == "block")) {
-        await delay(100);
+        await delay(200);
     }
 
     document.getElementById("approot").remove();

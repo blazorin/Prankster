@@ -176,11 +176,6 @@ namespace Server.Controllers
             if (User?.Identity != null && User.Identity.IsAuthenticated)
                 return Forbid();
 
-            var emailExists = await _userServices.EmailExistsAsync(request.Email);
-
-            if (!emailExists && (string.IsNullOrEmpty(request.Identifier) || request.Pin == 0 ||
-                !await _userServices.IdentifierExistsAsync(request.Identifier)))
-                return Unauthorized(new UnauthorizedError("google_needs_identifier"));
 
             GoogleJsonWebSignature.Payload payload;
             try
@@ -198,6 +193,12 @@ namespace Server.Controllers
 
             UserLoginDto credentials = request;
             credentials.Email = payload.Email; // set email from gapi payload
+
+            var emailExists = await _userServices.EmailExistsAsync(request.Email);
+
+            if (!emailExists && (string.IsNullOrEmpty(request.Identifier) || request.Pin == 0 ||
+                !await _userServices.IdentifierExistsAsync(request.Identifier)))
+                return Unauthorized(new UnauthorizedError("google_needs_identifier"));
 
             var user = await _userServices.HandleOauthAuthenticationAsync(credentials, OauthType.Google, emailExists);
             if (user == null)
