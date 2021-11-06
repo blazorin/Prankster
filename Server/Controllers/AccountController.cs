@@ -176,7 +176,6 @@ namespace Server.Controllers
             if (User?.Identity != null && User.Identity.IsAuthenticated)
                 return Forbid();
 
-
             GoogleJsonWebSignature.Payload payload;
             try
             {
@@ -190,11 +189,11 @@ namespace Server.Controllers
             {
                 return Unauthorized(new UnauthorizedError("google_invalid_token"));
             }
-
+            
             UserLoginDto credentials = request;
             credentials.Email = payload.Email; // set email from gapi payload
 
-            var emailExists = await _userServices.EmailExistsAsync(request.Email);
+            var emailExists = await _userServices.EmailExistsAsync(payload.Email);
 
             if (!emailExists && (string.IsNullOrEmpty(request.Identifier) || request.Pin == 0 ||
                 !await _userServices.IdentifierExistsAsync(request.Identifier)))
