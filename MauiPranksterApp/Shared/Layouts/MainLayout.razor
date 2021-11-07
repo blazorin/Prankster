@@ -161,11 +161,12 @@
     string[] _hideTabPages = {"/"};
 
     protected override void OnInitialized() {
-        _checkHasEnteredHomePage = (obj, args) =>
+        _checkHasEnteredHomePage = async (obj, args) =>
             {
                 string loc = args.Location;
 
-                _isNotOnHomePage = _hideTabPages.Any(e => loc.EndsWith(e)); // and any other page where settings menu nor tab-bar should not be
+                _isNotOnHomePage = (_hideTabPages.Any(e => loc.EndsWith(e)) || loc.Contains("prepare")); // and any other page where settings menu nor tab-bar should not be
+                _darkEnabledInit = await JsRuntime.InvokeAsync<bool>("darkMode.get");
                 StateHasChanged();
             };
 
