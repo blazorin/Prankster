@@ -12,5 +12,6 @@ namespace Shared.Dto
         public Language Language { get; set; }
         public float Popularity { get; set; }
         public string ImageName { get; set; }
+        public string AudioFileName { get; set; }
     }
 }
