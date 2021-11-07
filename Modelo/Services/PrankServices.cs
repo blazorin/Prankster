@@ -43,5 +43,15 @@ namespace Model.Services
 
             return result;
         }
+
+        public async Task<PrankDto> GetPrankById(int prankId)
+        {
+            var result = await _ctx.Pranks
+                .Where(p => p.PrankId == prankId.ToString() && p.Enabled)
+                .ProjectTo<PrankDto>(_mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync();
+
+            return result;
+        }
     }
 }

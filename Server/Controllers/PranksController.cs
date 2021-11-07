@@ -34,7 +34,7 @@ namespace Server.Controllers
         private readonly IPrankServices _prankServices;
 
         public PranksController(IPrankServices prankServices) => _prankServices = prankServices;
-        
+
 
         [HttpGet("fetch")]
         public async Task<IActionResult> FetchTrendingAndLatest()
@@ -48,5 +48,19 @@ namespace Server.Controllers
             return Conflict(new ConflictError("fetch_pranks_error"));
         }
 
+        [HttpGet("fetch/{prankId}")]
+        public async Task<IActionResult> FetchPrank(int prankId)
+        {
+            if (prankId is 0 or > 1000)
+                return Conflict(new ConflictError("fetch_prank_error"));
+
+            PrankDto prankObj = await _prankServices.GetPrankById(prankId);
+            
+           if (prankObj is null)
+                return Conflict(new ConflictError("fetch_prank_error"));
+
+           return Ok(prankObj);
+
+        }
     }
 }

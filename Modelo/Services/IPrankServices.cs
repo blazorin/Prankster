@@ -11,5 +11,6 @@ namespace Model.Services
     {
         Task<IEnumerable<PrankDto>> GetTrendingPranks();
         Task<IEnumerable<PrankDto>> GetLatestPranks();
+        Task<PrankDto> GetPrankById(int prankId);
     }
 }
