@@ -55,38 +55,6 @@ $(function(){
        let goBackPage = ()=>{history.go(-1)}
        goBack ? goBack.addEventListener('click', goBackPage) : null
 
-    /*================================================================
-      01. home notification popup
-    =================================================================*/
-    /*
-    $('.dz-bell').on('click',function(){
-      $('.dz-nav').toggleClass('dz-show');
-    });
-    */
-    /*================================================================
-      01. svg image change
-    =================================================================*/
-
-    const convertImages = (query, callback) => {
-        const images = document.querySelectorAll(query);
-        
-            images.forEach(image => {
-            fetch(image.src)
-            .then(res => res.text())
-            .then(data => {
-                const parser = new DOMParser();
-                const svg = parser.parseFromString(data, 'image/svg+xml').querySelector('svg');
-        
-                if (image.id) svg.id = image.id;
-                if (image.className) svg.classList = image.classList;
-        
-                image.parentNode.replaceChild(svg, image);
-            })
-            .then(callback)
-            .catch(error =>error);
-            });
-        };
-        convertImages('.svg');
       /*================================================================
           01. menu toggle
       =================================================================*/
@@ -99,7 +67,7 @@ $(function(){
             $('.m-menu__overlay').removeClass('show');
         });
 
-        /*================================================================
+    /*================================================================
       01. swiper slider
     =================================================================*/
       // Home slider 1

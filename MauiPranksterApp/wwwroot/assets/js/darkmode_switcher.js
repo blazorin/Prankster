@@ -127,6 +127,14 @@ function delay(t) {
     return new Promise(resolve => setTimeout(resolve, t));
 }
 
+window.PlayAudio = (elementName) => {
+    document.getElementById(elementName).play();
+}
+
+window.PauseAudio = (elementName) => {
+    document.getElementById(elementName).pause();
+}
+
 $(function () {
     "use strict";
 
