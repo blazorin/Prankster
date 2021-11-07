@@ -878,41 +878,32 @@ div.spinner {
 
 /* appbar */
 
-.dz-main .dz-appbar{
-    text-align: center;
-    background: var(--gradient-primary);
-    padding: 15px;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 999;
+#backbar {
+    box-sizing: border-box;
+    padding: 22px 15px 11px 15px;
 }
-.dz-main .dz-appbar button,
-.dz-main .dz-appbar a{
-    background: transparent;
-    text-transform: capitalize;
-    font-size: 17px;
-    font-family: SFProReg;
-    color: var(--white);
-    display: flex;
-    align-items: center;
-}
-.dz-main .dz-appbar .dz-left{
-    position: absolute;
-    top: 15px;
-    left: 15px;
-}
-.dz-main .dz-appbar .dz-left i{
-    margin-right: 8px;
-    font-size: 20px;
-}
-.dz-main .dz-appbar  h1{
-    font-size: 18px;
-    color: var(--white);
-    font-family: SFProMedium;
-    text-transform: capitalize;
-}
+
+
+    #backbar button {
+        background: transparent;
+        text-transform: capitalize;
+        font-size: 17px;
+        line-height: 22px;
+        font-family: SFProReg;
+        color: var(--blue);
+        display: flex;
+        align-items: center;
+    }
+
+    #backbar .dz-left {
+        margin-left: -7px;
+    }
+
+        #backbar .dz-left i {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+    }
 
 /* content */
 
@@ -2730,4 +2721,155 @@ body{
 .dz-dark-mode .dz-state h3,
 .dz-dark-mode .dz-state h3.grey {
     color: var(--white);
+}
+
+/*===============================================
+ prepare call css 
+================================================*/
+
+#prepare .dz-card {
+    border-radius: 13px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+#prepare .dz-card-video {
+    height: 260px;
+    background-size: cover;
+    position: relative;
+}
+
+#prepare .dz-card-video .dz-vid-icon {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.48);
+    text-align: center;
+    box-sizing: border-box;
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#prepare .dz-card-video .dz-vid-icon i {
+    font-size: 20px;
+    color: var(--white);
+}
+
+.dz-home #prepare .dz-prank-details {
+    text-align: center;
+}
+
+.dz-home.dz-dark-mode #prepare .dz-prank-details h1 {
+    color: var(--white);
+}
+
+.dz-home #prepare .dz-prank-details h1 {
+    font-size: 34px;
+    line-height: 41px;
+    text-transform: capitalize;
+    color: var(--grey70);
+    font-family: SFProBold;
+}
+
+.dz-home.dz-dark-mode #prepare .dz-prank-details p {
+    color: var(--grey10);
+}
+
+.dz-home #prepare .dz-prank-details p {
+    font-size: 17px;
+    line-height: 22px;
+    font-family: SFProReg;
+    color: var(--grey50);
+    padding-top: 10px;
+    padding-bottom: 40px;
+}
+
+#prepare .dz-break {
+    position: relative;
+    padding-bottom: 27px;
+    text-align: center
+}
+
+#prepare .dz-break:before {
+    left: 0;
+}
+
+#prepare .dz-break:after {
+    right: 0;
+}
+
+#prepare .dz-break:after,
+#prepare .dz-break:before {
+    height: 2px;
+    width: 35%;
+    position: absolute;
+    content: '';
+    background: var(--blue);
+    top: 10px;
+    margin: 1px
+}
+
+#prepare .dz-break span {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--white);
+    line-height: 20px;
+    width: 60px;
+    border-radius: 99px;
+    background: var(--blue);
+    text-transform: uppercase;
+    font-family: SFProReg;
+}
+
+#prepare .dz-card-small {
+    margin-bottom: 16px;
+}
+
+#prepare .dz-card-small .dz-card-main {
+    width: 100%;
+    border-radius: 13px;
+    overflow: hidden;
+}
+
+#prepare .dz-card-small .dz-callnow {
+    background: var(--gradient-accent);
+}
+
+#prepare .dz-card-small .dz-callafter {
+    background: var(--gradient-primary);
+}
+
+#prepare .dz-card-small .dz-content {
+    padding-bottom: 0;
+}
+
+#prepare .dz-card .dz-content {
+    padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#prepare .dz-card-small .dz-icon {
+    position: static;
+    top: 0;
+    right: 0;
+}
+
+#prepare .dz-card-small .dz-callnow .dz-icon {
+    right: -36px;
+}
+
+#prepare .dz-card-small .dz-callafter .dz-icon {
+    right: -36px;
+}
+
+#prepare .dz-card img {
+    width: 100%;
+}
+
+#prepare .dz-card-small h2 {
+    font-size: 17px;
+    color: var(--white);
+    font-family: SFProSemiBold;
 }
