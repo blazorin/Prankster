@@ -3,7 +3,7 @@
 An alpha-status app of Prankster, a prank call app.
 
 Only the authentication and Home was developed, on a .NET Maui Preview (RC1). <br/>
-It also features a nice usage of Swiper.js and loading skeletons. <br/>
+It also features a nice usage of Swiper.js and loading skeletons. <br/> <br/>
 Due to the lack of tooling I eventually killed this project.
 
 
