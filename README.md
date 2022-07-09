@@ -2,7 +2,7 @@
 
 An alpha-status app of Prankster, a prank call app.
 
-Only the authentication and Home was developed, on a .NET Maui Preview.
+Only the authentication and Home was developed, on a .NET Maui Preview (RC1).
 Due to the lack of tooling I killed this project.
 
 Now it's on the works again but sadly not with .NET / Blazor due to incompatibility issues and lack of native APIs.
